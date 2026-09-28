@@ -381,6 +381,42 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 @media (max-width:760px){.wl{grid-template-columns:1fr}}
 .demo{font-size:.78rem;color:var(--muted);text-align:center;padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== smart search + glossary ===== */
+.sbtn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--surface-2);color:var(--ink);font-size:.85rem;font-weight:600}
+.sbtn:hover{color:var(--primary)}
+.sbtn:focus-visible,.sitem:focus-visible,.gref:focus-visible,.schip:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.sov{position:fixed;inset:0;z-index:60;background:rgba(14,19,32,.45);display:flex;justify-content:center;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 8vh) 16px 16px}
+.spanel{width:100%;max-width:680px;max-height:80vh;display:grid;grid-template-rows:auto 1fr auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45);overflow:hidden}
+.sbar{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)}
+.sbar input{all:unset;flex:1;min-width:0;font-size:1.05rem;color:var(--ink);font-family:var(--sans)}
+.sbar input::placeholder{color:var(--muted)}
+.sclose{all:unset;cursor:pointer;font-size:.72rem;font-family:var(--mono);padding:3px 7px;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.sres{overflow-y:auto;padding:10px 12px;display:grid;gap:10px;align-content:start}
+.sfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--line);font-size:.78rem}
+.shint{margin:6px 2px;color:var(--muted);font-size:.92rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.schip{all:unset;cursor:pointer;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink);font-size:.85rem}
+.schip:hover{background:var(--primary-soft)}
+.slist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.sitem{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:10px;row-gap:1px;padding:8px 10px;border-radius:10px}
+.sitem:hover,.sitem[aria-selected="true"]{background:var(--primary-soft)}
+.skind{grid-row:1 / span 2;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);padding-top:3px}
+.stitle{font-weight:600;color:var(--ink)}
+.smeta{font-size:.82rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sgl{display:grid;gap:8px}
+.gcardx{background:var(--amber-soft);border-radius:12px;padding:12px 14px;display:grid;gap:6px}
+.gcardx p{margin:0;font-size:.93rem}
+.gcardx .gh{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.gcardx .gh b{font-size:1.05rem}
+.gcardx .gh .ar{margin-inline-start:auto;font-size:1.05rem;color:var(--ink);line-height:1.4}
+.grefs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.gref{all:unset;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--primary);background:var(--surface);border-radius:999px;padding:3px 10px}
+.gref:hover{text-decoration:underline}
+.gsec h2{font-size:1.1rem;margin:0 0 10px}
+.gcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.gcols .gcardx{background:var(--surface);border:1px solid var(--line)}
+.gcols .gref{background:var(--surface-2)}
+@media (max-width:640px){#vSearchL{display:none}.sbtn{padding:7px 10px}.sov{padding-top:calc(env(safe-area-inset-top,0px) + 10px)}.spanel{max-height:88vh}.sitem{grid-template-columns:1fr}.skind{grid-row:auto;padding:0}.sfoot span{display:none}}
 /* ===== design pass (layout, mobile, Arabic) ===== */
 .hero .ar-tag{color:var(--ink);font-size:1.45rem}
 .why3 .wlead{margin:0;font-weight:600;font-size:1.05rem}
@@ -422,6 +458,7 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 <div class="bar"><div class="in">
   <div class="brand"><b>Sabab<span>.</span></b><span class="ar">سبب</span><span class="muted" style="font-size:.85rem" id="tagline"></span></div>
   <div class="seg views" role="group" aria-label="Sections"><button id="vHome" aria-pressed="true"></button><button id="vStudent" aria-pressed="false"></button><button id="vBeyond" aria-pressed="false"></button><button id="vShop" aria-pressed="false"></button><button id="vVoices" aria-pressed="false"></button><button id="vTeacher" aria-pressed="false"></button></div>
+  <button class="sbtn" id="vSearch" aria-label="Search"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span id="vSearchL">Search</span></button>
   <div class="seg" role="group" aria-label="Language"><button id="lEN" aria-pressed="true">EN</button><button id="lFR" aria-pressed="false">FR</button></div>
 </div></div>
 
@@ -480,7 +517,7 @@ function renderShell(){
   [["vHome","home"],["vStudent","unit"],["vBeyond","beyond"],["vShop","shop"],["vVoices","voices"],["vTeacher","teacher"]].forEach(([id,v])=>$("#"+id).setAttribute("aria-pressed",S.view===v));
   if(S.view==="explore")$("#vBeyond").setAttribute("aria-pressed","true");
   if(S.view==="story")$("#vShop").setAttribute("aria-pressed","true");
-  const wide=S.view==="home"||S.view==="grades"||S.view==="shop"||S.view==="voices"||S.view==="unit"||S.view==="skill"||S.view==="beyond"||S.view==="explore"||S.view==="teacher"||S.view==="thinkers"||S.view==="story";
+  const wide=S.view==="home"||S.view==="grades"||S.view==="glossary"||S.view==="shop"||S.view==="voices"||S.view==="unit"||S.view==="skill"||S.view==="beyond"||S.view==="explore"||S.view==="teacher"||S.view==="thinkers"||S.view==="story";
   if(S.view==="skill"||S.view==="grades")$("#vStudent").setAttribute("aria-pressed","true");
   if(S.view==="student")$("#vStudent").setAttribute("aria-pressed","true");
   $("#toUnit").textContent="← "+(S.lang==="fr"?"Plan de l'unité":"Unit map"); $("#shell").classList.toggle("wide",wide); document.querySelector(".rail").hidden=wide;
@@ -560,12 +597,13 @@ function bindNav(){
 function disc(ar){return `<div class="disc"><span class="lbl">${L(T.discuss)}</span><p class="ar">${ar}</p></div>`;}
 
 let stopAnim=null;
-function render(){ render0(); betaDecorate(); }
+function render(){ render0(); betaDecorate(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); }
 function render0(){
   if(stopAnim){stopAnim();stopAnim=null;}
   renderShell();
   if(S.view==="home") return renderHome();
   if(S.view==="grades") return renderGrades();
+  if(S.view==="glossary") return renderGlossary();
   if(S.view==="unit") return renderUnit();
   if(S.view==="skill") return renderSkill();
   if(S.view==="shop") return renderShop();
@@ -4988,12 +5026,14 @@ function renderGrades(){
   <section class="hero" style="padding-block:8px 0">
     <span class="kick">${tx("Lessons by grade · CRDP programme","Leçons par niveau · programme du CRDP")}</span>
     <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("Choose your grade","Choisis ton niveau")}</h1>
+    <div class="row" style="gap:10px"><button class="btn ghost" id="grSearch">${tx("Search a concept","Chercher une notion")}</button><button class="btn ghost" id="grGloss">${tx("Glossary","Glossaire")}</button></div>
     <p class="lede">${tx("Sabab follows the Lebanese national programme. Grade 11 mechanics is open now. The other grades are being prepared, and the waitlist decides which one opens next.","Sabab suit le programme national libanais. La mécanique de Première est ouverte. Les autres niveaux sont en préparation, et la liste d'attente décide lequel ouvrira ensuite.")}</p>
   </section>
   <div class="gwrap">
     <section class="ggroup"><h2>${tx("Intermediate · Grades 7–9","Complémentaire · EB7–EB9")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="mid").map(card).join("")}</div></section>
     <section class="ggroup"><h2>${tx("Secondary · Grades 10–12","Secondaire · Seconde à Terminale")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="sec").map(card).join("")}</div></section>
   </div>`;
+  $("#grSearch").onclick=()=>openSearch(); $("#grGloss").onclick=()=>go("glossary");
   document.querySelectorAll("[data-grade]").forEach(b=>b.onclick=()=>{const g=GRADES.find(x=>x.g===+b.dataset.grade);if(g&&g.live)go("unit");else waitlistModal("grade");});
 }
 function renderUnit(){
@@ -5111,6 +5151,150 @@ function renderTeacher(){
   const vOn=document.getElementById("valOn"),vOff=document.getElementById("valOff");
   if(vOn)vOn.onclick=()=>{S.valuesOn=true;save();render();}; if(vOff)vOff.onclick=()=>{S.valuesOn=false;save();render();};
 }
+
+/* ===================== SMART SEARCH + GLOSSARY ===================== */
+const GLOSSARY=[
+ {ch:7,en:"Reference frame",fr:"Référentiel",ar:"المرجع",al:["frame of reference","référentiel","الإطار المرجعي","المعلم"],d:{en:"The object or place from which a motion is described. The same motion looks different from two frames.",fr:"L'objet ou le lieu à partir duquel on décrit un mouvement. Un même mouvement paraît différent dans deux référentiels."},r:[["L1",0]]},
+ {ch:7,en:"Trajectory",fr:"Trajectoire",ar:"المسار",al:["path"],d:{en:"The line followed by a moving point. It depends on the reference frame.",fr:"La ligne suivie par un point en mouvement. Elle dépend du référentiel."},r:[["L1",0]]},
+ {ch:7,en:"Vector",fr:"Vecteur",ar:"المتّجه",al:["vecteur","شعاع"],d:{en:"A quantity with a magnitude and a direction, drawn as an arrow (velocity, acceleration, force).",fr:"Une grandeur qui a une norme et une direction, dessinée par une flèche (vitesse, accélération, force)."},r:[["L1",0],["L2",0]]},
+ {ch:7,en:"Position vector",fr:"Vecteur position",ar:"متّجه الموضع",al:["OM"],d:{en:"The vector from the origin O to the moving point M: OM = x·i + y·j.",fr:"Le vecteur de l'origine O au point mobile M : OM = x·i + y·j."},r:[["L1",0]]},
+ {ch:7,en:"Velocity",fr:"Vitesse",ar:"السرعة",al:["speed","vitesse"],d:{en:"How fast the position changes, and in which direction. A vector, in m/s.",fr:"La rapidité de variation de la position, et dans quelle direction. Un vecteur, en m/s."},r:[["SA"],["L2",0]]},
+ {ch:7,en:"Instantaneous velocity",fr:"Vitesse instantanée",ar:"السرعة اللحظية",al:["derivative of position"],d:{en:"The velocity at one instant: the derivative of the position vector with respect to time.",fr:"La vitesse à un instant : la dérivée du vecteur position par rapport au temps."},r:[["SA"]]},
+ {ch:7,en:"Acceleration",fr:"Accélération",ar:"التسارع",al:["accélération"],d:{en:"How fast the velocity changes. A vector, in m/s². It can change the speed, the direction, or both.",fr:"La rapidité de variation de la vitesse. Un vecteur, en m/s². Elle peut changer la norme, la direction, ou les deux."},r:[["L2",0],["L3",3]]},
+ {ch:7,en:"Tangential acceleration",fr:"Accélération tangentielle",ar:"التسارع المماسي",al:["a_t"],d:{en:"The part of the acceleration along the path. It changes the speed.",fr:"La composante de l'accélération le long de la trajectoire. Elle change la valeur de la vitesse."},r:[["SB"]]},
+ {ch:7,en:"Normal acceleration",fr:"Accélération normale",ar:"التسارع الناظمي",al:["centripetal acceleration","accélération centripète","a_n","التسارع المركزي"],d:{en:"The part of the acceleration toward the centre of the curve. It changes the direction: a_n = v²/R.",fr:"La composante de l'accélération vers le centre de la courbe. Elle change la direction : a_n = v²/R."},r:[["SB"],["L2",0]]},
+ {ch:7,en:"Uniform circular motion",fr:"Mouvement circulaire uniforme",ar:"الحركة الدائرية المنتظمة",al:["circular motion","mouvement circulaire"],d:{en:"Motion on a circle at constant speed. The velocity still changes direction, so the acceleration points to the centre.",fr:"Mouvement sur un cercle à vitesse constante. La vitesse change quand même de direction : l'accélération pointe vers le centre."},r:[["L2",0]]},
+ {ch:7,en:"Angular speed",fr:"Vitesse angulaire",ar:"السرعة الزاوية",al:["omega","ω","angular velocity"],d:{en:"The angle turned per second, ω, in rad/s. Every point of a turning wheel has the same ω.",fr:"L'angle balayé par seconde, ω, en rad/s. Tous les points d'une roue qui tourne ont le même ω."},r:[["SC"]]},
+ {ch:7,en:"Period",fr:"Période",ar:"الدور",al:["T"],d:{en:"The time for one full turn: T = 2π/ω, in seconds.",fr:"La durée d'un tour complet : T = 2π/ω, en secondes."},r:[["SC"]]},
+ {ch:7,en:"Frequency",fr:"Fréquence",ar:"التواتر",al:["التردد","hertz","Hz"],d:{en:"The number of turns per second: f = 1/T, in hertz (Hz).",fr:"Le nombre de tours par seconde : f = 1/T, en hertz (Hz)."},r:[["SC"]]},
+ {ch:8,en:"Force",fr:"Force",ar:"القوّة",al:["forces"],d:{en:"An interaction that can change an object's motion or shape. A vector, measured in newtons (N).",fr:"Une interaction qui peut modifier le mouvement ou la forme d'un objet. Un vecteur, mesuré en newtons (N)."},r:[["L3",0],["B3"]]},
+ {ch:8,en:"Net force",fr:"Résultante des forces",ar:"محصّلة القوى",al:["resultant force","sum of forces","somme des forces","ΣF"],d:{en:"The vector sum of all the forces acting on an object.",fr:"La somme vectorielle de toutes les forces qui agissent sur un objet."},r:[["L3",3]]},
+ {ch:8,en:"Newton's second law",fr:"Deuxième loi de Newton",ar:"قانون نيوتن الثاني",al:["F = ma","F=ma","principe fondamental de la dynamique","PFD","second law"],d:{en:"The net force on an object equals its mass times its acceleration: ΣF = m·a.",fr:"La résultante des forces sur un objet est égale à sa masse fois son accélération : ΣF = m·a."},r:[["L3",3],["L5",0]]},
+ {ch:8,en:"Inertia",fr:"Inertie",ar:"القصور الذاتي",al:["العطالة","inertial"],d:{en:"An object keeps its velocity unless a net force acts on it. The braking passenger moves forward because of inertia, not because of a forward force.",fr:"Un objet garde sa vitesse tant qu'aucune force résultante n'agit. Le passager qui freine avance par inertie, pas à cause d'une force vers l'avant."},r:[["L3",0],["L3",3]]},
+ {ch:8,en:"Newton's first law",fr:"Principe d'inertie",ar:"قانون نيوتن الأول",al:["first law","première loi de Newton","مبدأ العطالة"],d:{en:"With zero net force, an object stays at rest or keeps moving in a straight line at constant speed.",fr:"Si la résultante des forces est nulle, un objet reste immobile ou garde un mouvement rectiligne uniforme."},r:[["L3",1]]},
+ {ch:8,en:"Mass",fr:"Masse",ar:"الكتلة",al:["kg","kilogram"],d:{en:"A measure of inertia: how hard it is to change the object's velocity. In kilograms (kg).",fr:"Une mesure de l'inertie : la difficulté à changer la vitesse d'un objet. En kilogrammes (kg)."},r:[["L3",2]]},
+ {ch:8,en:"Weight",fr:"Poids",ar:"الوزن",al:["P = mg","gravity force"],d:{en:"The gravitational force on an object: P = m·g, in newtons. Not the same as mass.",fr:"La force de pesanteur sur un objet : P = m·g, en newtons. À ne pas confondre avec la masse."},r:[["L3",3],["L5",0]]},
+ {ch:8,en:"Gravitational acceleration",fr:"Accélération de la pesanteur",ar:"تسارع الجاذبية",al:["g","9.8","gravity","pesanteur","الجاذبية"],d:{en:"About 9.8 m/s² near Earth's surface. Every falling object gains this much speed each second, if air is negligible.",fr:"Environ 9,8 m/s² près de la surface terrestre. Tout objet en chute gagne cette vitesse chaque seconde, si l'air est négligeable."},r:[["L4",0],["B3"]]},
+ {ch:8,en:"Free-body diagram",fr:"Bilan des forces",ar:"مخطّط القوى",al:["force diagram","diagramme des forces","schéma des forces"],d:{en:"A drawing of one object with every force acting on it shown as an arrow.",fr:"Un schéma d'un seul objet avec chaque force qui agit sur lui représentée par une flèche."},r:[["L3",3],["L5",0]]},
+ {ch:8,en:"Normal reaction",fr:"Réaction normale",ar:"ردّ الفعل الناظمي",al:["normal force","support force","réaction du support"],d:{en:"The force a surface exerts on an object, perpendicular to the surface.",fr:"La force qu'une surface exerce sur un objet, perpendiculaire à la surface."},r:[["L5",0]]},
+ {ch:8,en:"Friction",fr:"Frottement",ar:"الاحتكاك",al:["frottements","friction force"],d:{en:"A force that opposes sliding between two surfaces. Kinetic friction: f = μ·N.",fr:"Une force qui s'oppose au glissement entre deux surfaces. Frottement cinétique : f = μ·N."},r:[["L5",0]]},
+ {ch:8,en:"Coefficient of friction",fr:"Coefficient de frottement",ar:"معامل الاحتكاك",al:["mu","μ","μs","μk"],d:{en:"μ, the ratio of the friction force to the normal force. Static μs (before sliding) is usually larger than kinetic μk.",fr:"μ, le rapport de la force de frottement à la réaction normale. Le μs statique (avant glissement) est en général plus grand que le μk cinétique."},r:[["L5",0]]},
+ {ch:8,en:"Projectile",fr:"Projectile",ar:"المقذوف",al:["projectile motion","parabola","parabole","trajectoire parabolique"],d:{en:"An object launched and then moving under gravity alone. Its path is a parabola.",fr:"Un objet lancé qui se déplace ensuite sous le seul effet de la pesanteur. Sa trajectoire est une parabole."},r:[["L4",0]]},
+ {ch:9,en:"Centre of mass",fr:"Centre d'inertie",ar:"مركز العطالة",al:["center of mass","centre de masse","مركز الكتلة","centre of gravity","centre de gravité"],d:{en:"The point that moves as if all the mass were there and all external forces acted on it.",fr:"Le point qui se déplace comme si toute la masse y était concentrée et toutes les forces extérieures y étaient appliquées."},r:[["L6",0],["B1"]]},
+ {ch:10,en:"Moment of a force",fr:"Moment d'une force",ar:"عزم القوّة",al:["torque","couple","moment"],d:{en:"The turning effect of a force about an axis: M = F × d, where d is the lever arm. In N·m.",fr:"L'effet de rotation d'une force autour d'un axe : M = F × d, où d est le bras de levier. En N·m."},r:[["L7",0]]},
+ {ch:10,en:"Lever arm",fr:"Bras de levier",ar:"ذراع القوّة",al:["lever","levier","الرافعة"],d:{en:"The perpendicular distance from the axis to the line of action of the force.",fr:"La distance perpendiculaire entre l'axe et la droite d'action de la force."},r:[["L7",0]]},
+ {ch:10,en:"Moment of inertia",fr:"Moment d'inertie",ar:"عزم العطالة",al:["I_Δ","rotational inertia","عزم القصور الذاتي"],d:{en:"How hard it is to change an object's rotation. It depends on the mass and on how far it is from the axis.",fr:"La difficulté à modifier la rotation d'un objet. Il dépend de la masse et de sa distance à l'axe."},r:[["L8",0],["B4"]]},
+ {ch:11,en:"Work",fr:"Travail",ar:"الشغل",al:["W = F d cos","joule"],d:{en:"The energy transferred by a force along a displacement: W = F·d·cos α, in joules (J).",fr:"L'énergie transférée par une force le long d'un déplacement : W = F·d·cos α, en joules (J)."},r:[["L9",0]]},
+ {ch:11,en:"Power",fr:"Puissance",ar:"القدرة",al:["watt","W","P = W/t"],d:{en:"Work done per second: P = W/t, in watts (W).",fr:"Le travail effectué par seconde : P = W/t, en watts (W)."},r:[["L9",0]]},
+ {ch:11,en:"Kinetic energy",fr:"Énergie cinétique",ar:"الطاقة الحركية",al:["1/2 mv2","½mv²","Ec"],d:{en:"The energy of motion: Ec = ½·m·v².",fr:"L'énergie liée au mouvement : Ec = ½·m·v²."},r:[["L10",0]]},
+ {ch:11,en:"Potential energy",fr:"Énergie potentielle de pesanteur",ar:"طاقة الوضع الثقالية",al:["mgh","gravitational potential energy","Epp"],d:{en:"The energy stored by height in a gravitational field: Epp = m·g·h.",fr:"L'énergie stockée par la hauteur dans le champ de pesanteur : Epp = m·g·h."},r:[["L10",0]]},
+ {ch:11,en:"Mechanical energy",fr:"Énergie mécanique",ar:"الطاقة الميكانيكية",al:["Em"],d:{en:"Kinetic energy plus potential energy. It stays constant when friction is negligible.",fr:"L'énergie cinétique plus l'énergie potentielle. Elle reste constante quand les frottements sont négligeables."},r:[["L10",0]]},
+ {ch:11,en:"Conservation of energy",fr:"Conservation de l'énergie",ar:"حفظ الطاقة",al:["energy conservation","énergie conservée","مبدأ حفظ الطاقة"],d:{en:"Energy is never created or destroyed; it only changes form (motion, height, heat…).",fr:"L'énergie n'est jamais créée ni détruite ; elle change seulement de forme (mouvement, hauteur, chaleur…)."},r:[["L10",0],["B6"]]}
+];
+const GLOSS_CH={7:{en:"Chapter 7 · Motion in a plane",fr:"Chapitre 7 · Mouvement plan"},8:{en:"Chapter 8 · Newton's second law",fr:"Chapitre 8 · Deuxième loi de Newton"},9:{en:"Chapter 9 · Systems of particles",fr:"Chapitre 9 · Systèmes de particules"},10:{en:"Chapter 10 · Rotational dynamics",fr:"Chapitre 10 · Dynamique de rotation"},11:{en:"Chapter 11 · Work and energy",fr:"Chapitre 11 · Travail et énergie"}};
+function snorm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[ً-ٰٟـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/ؤ/g,"و").replace(/ئ/g,"ي").replace(/[’'`´]/g,"'").replace(/[^\p{L}\p{N}'=·.²ωμΣ ]+/gu," ").replace(/\s+/g," ").trim();}
+function stripAl(w){return w.length>3&&w.startsWith("ال")?w.slice(2):w;}
+let SIDX=null;
+function refInfo(r){ // -> {label, go}
+  const [id,step]=r;
+  if(/^L\d+$/.test(id)){let les=null;UNIT.forEach(c=>c.lessons.forEach(l=>{if(l.live===id)les=l;}));
+    const stepName=typeof step==="number"&&step>0&&T.steps[step]?` · ${L(T.steps[step])}`:"";
+    return {label:`${L({en:"Lesson",fr:"Leçon"})} ${id.slice(1)}${stepName}`,locked:betaLockedLesson(id),go:()=>openLesson(id,step||0)};}
+  if(SKILLS[id]) return {label:`${L({en:"Skill builder",fr:"Atelier"})} ${SKILLS[id].code}`,go:()=>openSkill(id)};
+  if(/^B\d+$/.test(id)) return {label:`${L({en:"Beyond",fr:"Au-delà"})} · ${id}`,locked:betaLockedExplore(id),go:()=>openExplore(id)};
+  return {label:id,go:()=>{}};
+}
+function buildSearchIndex(){
+  const items=[];
+  const add=(o)=>{o.hay=snorm([o.title,o.alt,o.body].join(" "));o.ht=snorm([o.title,o.alt].join(" "));items.push(o);};
+  UNIT.forEach(c=>c.lessons.forEach(l=>{if(!l.live)return;const id=l.live;
+    add({kind:"lesson",id,title:L(l.t),alt:[l.t.en,l.t.fr,l.ar].join(" "),body:[L(c.t),l.topic&&l.topic.en,l.topic&&l.topic.fr,l.hook&&l.hook.en,l.hook&&l.hook.fr,l.inv&&l.inv.en].join(" "),
+      meta:`${L({en:"Lesson",fr:"Leçon"})} ${l.n} · ${L(l.topic||{en:"",fr:""})}`,locked:betaLockedLesson(id),go:()=>openLesson(id,0)});}));
+  Object.keys(SKILLS).forEach(k=>{const q=SKILLS[k];add({kind:"skill",id:k,title:L(q.title),alt:[q.title.en,q.title.fr].join(" "),body:[q.lede&&q.lede.en,q.lede&&q.lede.fr].join(" "),meta:`${L({en:"Skill builder",fr:"Atelier"})} ${q.code}`,go:()=>openSkill(k)});});
+  BEYOND.forEach(th=>th.items.forEach(x=>add({kind:"beyond",id:x.id,title:L(x.t),alt:[x.t.en,x.t.fr,x.ar].join(" "),body:[x.d&&x.d.en,x.d&&x.d.fr,th.t.en,th.t.fr].join(" "),meta:`${L({en:"Beyond the programme",fr:"Au-delà du programme"})} · ${L(th.t)}`,locked:betaLockedExplore(x.id),go:()=>openExplore(x.id)})));
+  PRODUCTS.forEach(p=>add({kind:p.type==="story"?"story":"library",id:p.id,title:L(p.t),alt:[p.t.en,p.t.fr,p.ar].join(" "),body:[p.meta&&p.meta.en,p.unit&&p.unit.en,p.unit&&p.unit.fr].join(" "),meta:L(p.meta||{en:"",fr:""}),go:()=>{if(p.read)openStory(p.read);else go("shop");}}));
+  THINKERS.forEach(t=>add({kind:"thinker",id:t.id,title:t.n,alt:t.ar,body:[t.idea&&t.idea.en,t.idea&&t.idea.fr,t.why&&t.why.en,t.d].join(" "),meta:t.d,go:()=>{go("thinkers");setTimeout(()=>{const el=document.getElementById("th-"+t.id);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});},150);}}));
+  Object.keys(TG).forEach(id=>{const g=TG[id];add({kind:"guide",id:"tg"+id,title:`${L({en:"Teacher guide",fr:"Guide enseignant"})} · ${L(g.title)}`,alt:[g.title.en,g.title.fr].join(" "),body:(g.obj||[]).map(o=>o.en+" "+o.fr).join(" "),meta:`${L({en:"Lesson",fr:"Leçon"})} ${id.slice(1)}`,locked:betaLockedLesson(id),go:()=>{if(betaLockedLesson(id)){waitlistModal("lesson");return;}S.tLesson=id;save();go("teacher");}});});
+  add({kind:"guide",id:"tgL3",title:`${L({en:"Teacher guide",fr:"Guide enseignant"})} · ${L({en:"Is a force real?",fr:"Une force, est-ce réel ?"})}`,alt:"teacher guide L3 lesson plan guide enseignant",body:"Newton second law inertia force",meta:`${L({en:"Lesson",fr:"Leçon"})} 3`,go:()=>{S.tLesson="L3";save();go("teacher");}});
+  add({kind:"page",id:"glossary",title:L({en:"Glossary of physics terms",fr:"Glossaire des termes de physique"}),alt:"glossary glossaire definitions définitions قاموس مصطلحات",body:"",meta:`${GLOSSARY.length} ${L({en:"terms · English, French, Arabic",fr:"termes · anglais, français, arabe"})}`,go:()=>go("glossary")});
+  add({kind:"page",id:"waitlist",title:L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"}),alt:"waitlist liste d'attente inscription sign up",body:"",meta:L({en:"Get new lessons first",fr:"Recevoir les nouvelles leçons en premier"}),go:()=>goWaitlist()});
+  GLOSSARY.forEach((g,i)=>{g.keys=[g.en,g.fr,g.ar,...(g.al||[])].map(snorm);g.i=i;});
+  SIDX=items;
+}
+function searchRun(q){
+  if(!SIDX)buildSearchIndex();
+  const nq=snorm(q); if(!nq) return {gl:[],res:[]};
+  const all=nq.split(" ").filter(Boolean).map(stripAl); let toks=all.filter(t=>t.length>=2&&/\p{L}/u.test(t)); if(!toks.length)toks=all;
+  const hit=(hay)=>toks.every(t=>hay.includes(t));
+  const hitAll=(hay)=>all.every(t=>hay.includes(t));
+  const wordHit=(hay)=>{const h=" "+hay+" ";return toks.every(t=>h.includes(" "+t+" ")||h.includes(" ال"+t)||h.includes(" "+t+"s "));};
+  // glossary
+  const gl=GLOSSARY.map(g=>{let s=0;g.keys.forEach(k=>{if(k===nq)s=Math.max(s,100);else if(k.startsWith(nq))s=Math.max(s,60);else if(hitAll(k))s=Math.max(s,40);});return {g,s};}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+  const refIds=new Set();gl.forEach(x=>x.g.r.forEach(r=>refIds.add(r[0])));
+  const strong=gl.length&&gl[0].s>=60;
+  const res=SIDX.map(it=>{if(!hit(it.hay))return null;if(strong&&!refIds.has(it.id)&&!hit(it.ht)&&!wordHit(it.hay))return null;let s=10;if(hit(it.ht))s+=30;if(snorm(it.title).startsWith(nq))s+=20;if(refIds.has(it.id))s+=25;if(it.kind==="lesson")s+=5;if(it.locked)s-=4;return {it,s};}).filter(Boolean).sort((a,b)=>b.s-a.s).slice(0,12);
+  // add glossary refs that didn't match by text
+  gl.forEach(x=>x.g.r.forEach(r=>{if(!res.some(y=>y.it.id===r[0])){const it=SIDX.find(z=>z.id===r[0]);if(it)res.push({it,s:x.s>=60?70:1});}}));
+  res.sort((a,b)=>b.s-a.s);
+  return {gl,res:res.slice(0,12)};
+}
+const SKIND={lesson:{en:"Lesson",fr:"Leçon"},skill:{en:"Skill builder",fr:"Atelier"},beyond:{en:"Beyond",fr:"Au-delà"},story:{en:"Story",fr:"Récit"},library:{en:"Library",fr:"Bibliothèque"},thinker:{en:"Thinker",fr:"Penseur"},guide:{en:"Teacher guide",fr:"Guide enseignant"},page:{en:"Page",fr:"Page"}};
+function glossCardHTML(g,compact){
+  const refs=g.r.map((r,j)=>{const ri=refInfo(r);return `<button class="gref" data-gref="${g.i}:${j}">${ri.label}${ri.locked?` · 🔒`:""} →</button>`;}).join("");
+  return `<article class="gcardx"><div class="gh"><b>${S.lang==="fr"?g.fr:g.en}</b><span class="muted">${S.lang==="fr"?g.en:g.fr}</span><span class="ar" lang="ar" dir="rtl">${g.ar}</span></div><p>${L(g.d)}</p><div class="grefs"><span class="muted" style="font-size:.8rem">${L({en:"Revise it in",fr:"Réviser dans"})}</span>${refs}</div></article>`;
+}
+function bindGlossRefs(root,after){root.querySelectorAll("[data-gref]").forEach(b=>b.onclick=()=>{const [gi,j]=b.dataset.gref.split(":").map(Number);const r=GLOSSARY[gi].r[j];if(after)after();try{window.goatcounter&&goatcounter.count({path:"search/"+GLOSSARY[gi].en.toLowerCase().replace(/\s+/g,"-"),title:"Glossary click",event:true});}catch(e){}refInfo(r).go();});}
+let searchEl=null;
+function openSearch(initial){
+  if(searchEl){searchEl.querySelector("#sq").focus();return;}
+  searchEl=document.createElement("div");searchEl.className="sov";searchEl.setAttribute("role","dialog");searchEl.setAttribute("aria-modal","true");searchEl.setAttribute("aria-label",L({en:"Search Sabab",fr:"Rechercher dans Sabab"}));
+  const sug=["inertia","friction","centre of mass","F = ma","القصور الذاتي","énergie cinétique","Ibn al-Haytham","pendulum"];
+  searchEl.innerHTML=`<div class="spanel"><div class="sbar"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="sq" type="search" autocomplete="off" spellcheck="false" placeholder="${L({en:"Search a concept, lesson or story · EN · FR · عربي",fr:"Chercher une notion, une leçon, un récit · FR · EN · عربي"})}" aria-label="${L({en:"Search",fr:"Rechercher"})}">
+    <button class="sclose" id="sClose" aria-label="${L({en:"Close",fr:"Fermer"})}">Esc</button></div>
+    <div class="sres" id="sRes"></div>
+    <div class="sfoot"><button class="linkbtn" id="sGloss">${L({en:"Browse the glossary",fr:"Parcourir le glossaire"})} (${GLOSSARY.length}) →</button><span class="muted">↑ ↓ ${L({en:"to move",fr:"pour naviguer"})} · Enter · Esc</span></div></div>`;
+  document.body.appendChild(searchEl);document.body.style.overflow="hidden";
+  const inp=searchEl.querySelector("#sq"),box=searchEl.querySelector("#sRes");let sel=-1,last=[];
+  const close=()=>{if(!searchEl)return;searchEl.remove();searchEl=null;document.body.style.overflow="";document.removeEventListener("keydown",onKey,true);};
+  const pick=(it)=>{close();try{window.goatcounter&&goatcounter.count({path:"search/"+it.kind+"/"+it.id,title:"Search click",event:true});}catch(e){}it.go();};
+  const draw=()=>{const q=inp.value;
+    if(!q.trim()){box.innerHTML=`<p class="shint">${L({en:"Try:",fr:"Essaie :"})} ${sug.map(s=>`<button class="schip" data-s="${esc(s)}">${esc(s)}</button>`).join("")}</p>`;
+      box.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{inp.value=b.dataset.s;draw();inp.focus();});last=[];sel=-1;return;}
+    const {gl,res}=searchRun(q);last=res.map(x=>x.it);sel=last.length?0:-1;
+    if(!gl.length&&!res.length){box.innerHTML=`<p class="shint">${L({en:"Nothing found for",fr:"Rien trouvé pour"})} « ${esc(q)} ». ${L({en:"Try another word, in English, French or Arabic, or browse the glossary.",fr:"Essaie un autre mot, en français, en anglais ou en arabe, ou parcours le glossaire."})}</p>`;return;}
+    box.innerHTML=(gl.length?`<div class="sgl">${gl.map(x=>glossCardHTML(x.g)).join("")}</div>`:"")+
+      (res.length?`<ul class="slist" role="listbox">${res.map((x,i)=>`<li><button class="sitem" role="option" data-i="${i}" aria-selected="${i===sel}"><span class="skind">${L(SKIND[x.it.kind])}</span><span class="stitle">${esc(x.it.title)}${x.it.locked?` <span class="chip">${L({en:"In review",fr:"En relecture"})}</span>`:""}</span><span class="smeta">${esc(x.it.meta||"")}</span></button></li>`).join("")}</ul>`:"");
+    box.querySelectorAll(".sitem").forEach(b=>b.onclick=()=>pick(last[+b.dataset.i]));
+    bindGlossRefs(box,close);
+  };
+  const mark=()=>{box.querySelectorAll(".sitem").forEach((b,i)=>{b.setAttribute("aria-selected",i===sel);if(i===sel)b.scrollIntoView({block:"nearest"});});};
+  const onKey=(e)=>{if(e.key==="Escape"){e.preventDefault();close();}
+    else if(e.key==="ArrowDown"&&last.length){e.preventDefault();sel=(sel+1)%last.length;mark();}
+    else if(e.key==="ArrowUp"&&last.length){e.preventDefault();sel=(sel-1+last.length)%last.length;mark();}
+    else if(e.key==="Enter"&&document.activeElement===inp&&sel>=0&&last[sel]){e.preventDefault();pick(last[sel]);}};
+  document.addEventListener("keydown",onKey,true);
+  inp.addEventListener("input",draw);
+  searchEl.addEventListener("click",e=>{if(e.target===searchEl)close();});
+  searchEl.querySelector("#sClose").onclick=close;
+  searchEl.querySelector("#sGloss").onclick=()=>{close();go("glossary");};
+  if(initial)inp.value=initial; draw(); setTimeout(()=>inp.focus(),30);
+}
+function renderGlossary(){
+  const tx=(en,fr)=>S.lang==="fr"?fr:en;
+  const chs=[...new Set(GLOSSARY.map(g=>g.ch))];
+  GLOSSARY.forEach((g,i)=>g.i=i);
+  $("#main").innerHTML=`<section class="hero" style="padding-block:8px 0">
+    <span class="kick">${tx("Revise · Grade 11 mechanics","Réviser · mécanique de Première")}</span>
+    <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("Glossary","Glossaire")}</h1>
+    <p class="lede">${tx(`${GLOSSARY.length} physics terms in English, French and Arabic, each with a short definition and the lesson where you can revise it.`,`${GLOSSARY.length} termes de physique en français, anglais et arabe, chacun avec une courte définition et la leçon où le réviser.`)}</p>
+    <div class="row"><button class="btn" id="gSearch">${tx("Search a term","Chercher un terme")}</button></div></section>
+  <div style="display:grid;gap:28px">${chs.map(ch=>`<section class="gsec"><h2>${L(GLOSS_CH[ch])}</h2><div class="gcols">${GLOSSARY.filter(g=>g.ch===ch).map(g=>glossCardHTML(g)).join("")}</div></section>`).join("")}</div>`;
+  $("#gSearch").onclick=()=>openSearch();
+  bindGlossRefs($("#main"));
+}
+document.addEventListener("keydown",e=>{if(e.key==="/"&&!searchEl&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")&&!(document.activeElement&&document.activeElement.isContentEditable)){e.preventDefault();openSearch();}});
+(function(){const b=document.getElementById("vSearch");if(b)b.onclick=()=>openSearch();})();
 
 render();
 })();

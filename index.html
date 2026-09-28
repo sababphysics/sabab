@@ -324,6 +324,20 @@ td.mono{font-family:var(--mono)}
 .chap{display:grid;gap:12px}
 .chead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
 .cnum{font-family:var(--mono);font-size:.8rem;color:var(--primary);text-transform:uppercase;letter-spacing:.06em}
+.ggroup{display:grid;gap:10px}
+.ggroup h2{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;font-family:var(--sans);font-weight:600}
+.ggrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px}
+@media (max-width:560px){.ggrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gcard{min-height:0;padding:14px}.gcard .gn{font-size:2rem}}
+.gcard{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:4px;align-content:start;min-height:150px}
+.gcard:hover{border-color:var(--primary)}
+.gcard:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.gcard .gn{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--muted)}
+.gcard .gt{font-weight:600}
+.gcard .gs{font-size:.85rem;color:var(--muted)}
+.gcard .ar{font-size:.95rem;color:var(--muted);text-align:right}
+.gcard .chip{justify-self:start;margin-top:6px}
+.gcard.live{border:2px solid var(--primary);background:var(--primary-soft)}
+.gcard.live .gn{color:var(--primary)}
 .lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .lcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start}
 .lcard.live{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
@@ -428,8 +442,8 @@ function renderShell(){
   [["vHome","home"],["vStudent","unit"],["vBeyond","beyond"],["vShop","shop"],["vVoices","voices"],["vTeacher","teacher"]].forEach(([id,v])=>$("#"+id).setAttribute("aria-pressed",S.view===v));
   if(S.view==="explore")$("#vBeyond").setAttribute("aria-pressed","true");
   if(S.view==="story")$("#vShop").setAttribute("aria-pressed","true");
-  const wide=S.view==="home"||S.view==="shop"||S.view==="voices"||S.view==="unit"||S.view==="skill"||S.view==="beyond"||S.view==="explore"||S.view==="teacher"||S.view==="thinkers"||S.view==="story";
-  if(S.view==="skill")$("#vStudent").setAttribute("aria-pressed","true");
+  const wide=S.view==="home"||S.view==="grades"||S.view==="shop"||S.view==="voices"||S.view==="unit"||S.view==="skill"||S.view==="beyond"||S.view==="explore"||S.view==="teacher"||S.view==="thinkers"||S.view==="story";
+  if(S.view==="skill"||S.view==="grades")$("#vStudent").setAttribute("aria-pressed","true");
   if(S.view==="student")$("#vStudent").setAttribute("aria-pressed","true");
   $("#toUnit").textContent="← "+(S.lang==="fr"?"Plan de l'unité":"Unit map"); $("#shell").classList.toggle("wide",wide); document.querySelector(".rail").hidden=wide;
   $("#lEN").setAttribute("aria-pressed",S.lang==="en"); $("#lFR").setAttribute("aria-pressed",S.lang==="fr");
@@ -455,6 +469,7 @@ function goWaitlist(){const f=()=>{const el=document.getElementById("waitlist");
 function waitlistModal(kind){
   const msg={lesson:{en:"This lesson is being reviewed by physics teachers and opens soon. Join the waitlist to get it first.",fr:"Cette leçon est en relecture par des enseignants de physique et ouvrira bientôt. Inscris-toi sur la liste d'attente pour l'avoir en premier."},
     explore:{en:"This exploration opens soon. Join the waitlist to get it first.",fr:"Cette exploration ouvrira bientôt. Inscris-toi sur la liste d'attente pour l'avoir en premier."},
+    grade:{en:"Lessons for this grade are being prepared. Join the waitlist and tell us your grade: we open the most requested grades first.",fr:"Les leçons de ce niveau sont en préparation. Inscris-toi sur la liste d'attente et indique ton niveau : nous ouvrirons d'abord les niveaux les plus demandés."},
     voices:{en:"Student Voices opens once moderation is in place. Join the waitlist to be told when it does.",fr:"Voix des élèves ouvrira quand la modération sera en place. Inscris-toi sur la liste d'attente pour être prévenu."}}[kind]||{en:"Coming soon.",fr:"Bientôt."};
   const m=openModal(`<span class="kicker">${L({en:"Pilot version",fr:"Version pilote"})}</span><h2>${L({en:"Coming soon",fr:"Bientôt disponible"})}</h2><p>${L(msg)}</p><div class="row"><button class="btn" id="wlGo">${L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"})} →</button></div>`);
   document.getElementById("wlGo").onclick=()=>{m.close();goWaitlist();};
@@ -486,8 +501,9 @@ $("#vHome").onclick=()=>go("home");
 $("#vShop").onclick=()=>go("shop");
 $("#vVoices").onclick=()=>go("voices");
 $("#vBeyond").onclick=()=>go("beyond");
-$("#vStudent").onclick=()=>go("unit");
+$("#vStudent").onclick=()=>go("grades");
 $("#toUnit").onclick=()=>go("unit");
+document.addEventListener("click",e=>{if(e.target.closest("#toGrades"))go("grades");});
 $("#vTeacher").onclick=()=>{S.view="teacher";save();render();};
 $("#lEN").onclick=()=>{S.lang="en";save();render();};
 $("#lFR").onclick=()=>{S.lang="fr";save();render();};
@@ -509,6 +525,7 @@ function render0(){
   if(stopAnim){stopAnim();stopAnim=null;}
   renderShell();
   if(S.view==="home") return renderHome();
+  if(S.view==="grades") return renderGrades();
   if(S.view==="unit") return renderUnit();
   if(S.view==="skill") return renderSkill();
   if(S.view==="shop") return renderShop();
@@ -4911,11 +4928,43 @@ const UNIT=[
  ]}
 ];
 const COMPN={critical:{en:"Critical thinking",fr:"Pensée critique"},inquiry:{en:"Inquiry",fr:"Investigation"},digital:{en:"Digital",fr:"Numérique"},creative:{en:"Creativity",fr:"Créativité"},communication:{en:"Communication",fr:"Communication"},citizenship:{en:"Citizenship",fr:"Citoyenneté"},ethical:{en:"Ethics",fr:"Éthique"}};
+const GRADES=[
+  {g:7,stage:"mid",en:"Grade 7",fr:"5e · EB7",ar:"السابع أساسي"},
+  {g:8,stage:"mid",en:"Grade 8",fr:"4e · EB8",ar:"الثامن أساسي"},
+  {g:9,stage:"mid",en:"Grade 9",fr:"3e · EB9",ar:"التاسع أساسي",exam:{en:"Brevet exam year",fr:"Année du Brevet"}},
+  {g:10,stage:"sec",en:"Grade 10",fr:"Seconde",ar:"الأول ثانوي"},
+  {g:11,stage:"sec",en:"Grade 11",fr:"Première",ar:"الثاني ثانوي",live:true},
+  {g:12,stage:"sec",en:"Grade 12",fr:"Terminale",ar:"الثالث ثانوي",exam:{en:"Official exam year",fr:"Année du bac officiel"}}
+];
+function renderGrades(){
+  const tx=(en,fr)=>S.lang==="fr"?fr:en;
+  const nL=UNIT.reduce((a,c)=>a+c.lessons.length,0);
+  const nOpen=UNIT.reduce((a,c)=>a+c.lessons.filter(l=>l.live&&!betaLockedLesson(l.live)).length,0);
+  const card=x=>`<button class="gcard ${x.live?"live":""}" data-grade="${x.g}" aria-label="${tx(x.en,x.fr)}">
+      <span class="gn">${x.g}</span>
+      <span class="gt">${tx(x.en,x.fr)}</span>
+      <span class="ar" lang="ar" dir="rtl">${x.ar}</span>
+      <span class="gs">${x.live?tx(`${nL} lessons · Mechanics`,`${nL} leçons · Mécanique`):x.exam?L(x.exam):tx("Physics","Physique")}</span>
+      ${x.live?`<span class="chip ok-chip">${tx(`${nOpen} open now →`,`${nOpen} ${nOpen===1?"ouverte":"ouvertes"} →`)}</span>`:`<span class="chip">${tx("Coming soon","Bientôt")}</span>`}
+    </button>`;
+  $("#main").innerHTML=`
+  <section class="hero" style="padding-block:8px 0">
+    <span class="kick">${tx("Lessons by grade · CRDP programme","Leçons par niveau · programme du CRDP")}</span>
+    <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("Choose your grade","Choisis ton niveau")}</h1>
+    <p class="lede">${tx("Sabab follows the Lebanese national programme. Grade 11 mechanics is open now. The other grades are being prepared, and the waitlist decides which one opens next.","Sabab suit le programme national libanais. La mécanique de Première est ouverte. Les autres niveaux sont en préparation, et la liste d'attente décide lequel ouvrira ensuite.")}</p>
+  </section>
+  <div style="display:grid;gap:26px">
+    <section class="ggroup"><h2>${tx("Intermediate · Grades 7–9","Complémentaire · EB7–EB9")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="mid").map(card).join("")}</div></section>
+    <section class="ggroup"><h2>${tx("Secondary · Grades 10–12","Secondaire · Seconde à Terminale")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="sec").map(card).join("")}</div></section>
+  </div>`;
+  document.querySelectorAll("[data-grade]").forEach(b=>b.onclick=()=>{const g=GRADES.find(x=>x.g===+b.dataset.grade);if(g&&g.live)go("unit");else waitlistModal("grade");});
+}
 function renderUnit(){
   const tx=(en,fr)=>S.lang==="fr"?fr:en;
   const total=UNIT.reduce((a,c)=>a+c.per,0), nL=UNIT.reduce((a,c)=>a+c.lessons.length,0);
   $("#main").innerHTML=`
   <section class="hero" style="padding-block:8px 0">
+    <button class="linkbtn" id="toGrades" style="font-size:.9rem;justify-self:start">← ${tx("All grades","Tous les niveaux")}</button>
     <span class="kick">${tx("Grade 11 · Scientific section · Mechanics","1re (Grade 11) · Section scientifique · Mécanique")}</span>
     <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("The mechanics unit, one big question per lesson","L'unité de mécanique, une grande question par leçon")}</h1>
     <p class="lede">${tx(`${nL} inquiry lessons covering the 5 mechanics chapters required by CRDP for 2025–2026 (${total} periods). Each lesson follows the same path: hook, question, investigate, model, make, reflect.`,`${nL} leçons d'investigation couvrant les 5 chapitres de mécanique exigés par le CRDP pour 2025–2026 (${total} périodes). Chaque leçon suit le même parcours : accroche, question, enquête, modèle, fabrication, réflexion.`)}</p>

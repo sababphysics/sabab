@@ -1231,7 +1231,7 @@ const PRODUCTS=[
   {id:"b1",type:"school",aud:["teacher"],price:null,ic:"school",bg:"linear-gradient(160deg,#2D4BD8,#1F8A55)",
    t:{en:"School Pack",fr:"Pack école"},ar:"باقة المدارس",
    meta:{en:"Platform licence + all books + teacher training",fr:"Licence plateforme + tous les livres + formation"},unit:{en:"Per school, per year",fr:"Par école, par an"},
-   toc:{en:["Class access to every inquiry unit","Teacher dashboards and student reflections","All guides, lab books and card sets for staff","Two training workshops per year","Printed story sets for the school library","Optional teacher-only values reference layer, enabled only at the school's request"],fr:["Accès des classes à toutes les unités","Tableaux de bord enseignants et réflexions des élèves","Tous les guides, cahiers de labo et cartes pour l'équipe","Deux ateliers de formation par an","Récits imprimés pour la bibliothèque de l'école","Couche de référence sur les valeurs, réservée aux enseignants, activée seulement à la demande de l'école"]}}
+   toc:{en:["Class access to every inquiry unit","Teacher dashboards and student reflections","All guides, lab books and card sets for staff","Two training workshops per year","Printed story sets for the school library"],fr:["Accès des classes à toutes les unités","Tableaux de bord enseignants et réflexions des élèves","Tous les guides, cahiers de labo et cartes pour l'équipe","Deux ateliers de formation par an","Récits imprimés pour la bibliothèque de l'école"]}}
 ];
 const TYPES=[["all",{en:"All",fr:"Tout"}],["story",{en:"Stories",fr:"Récits"}],["guide",{en:"Guides & workbooks",fr:"Guides et cahiers"}],["lab",{en:"Lab books",fr:"Cahiers de labo"}],["cards",{en:"Question cards",fr:"Cartes-questions"}],["film",{en:"Films",fr:"Films"}],["school",{en:"For schools",fr:"Pour les écoles"}]];
 const AUDS=[["all",{en:"Everyone",fr:"Tous"}],["student",{en:"Students",fr:"Élèves"}],["teacher",{en:"Teachers",fr:"Enseignants"}],["parent",{en:"Parents",fr:"Parents"}]];
@@ -1459,6 +1459,7 @@ async function drawFeed(){
 }
 
 /* ================= MULTI-LESSON ENGINE + LESSONS 1 & 2 (Chapter 7) ================= */
+const SHOW_REF_LAYER=false; // reference layer hidden on the public site
 /* ===== Values track: concept ladders (من الفيزياء إلى الحياة) ===== */
 const RUNGS=["المفهوم","في الفيزياء","في المجتمع","في العالم","في القيم","حدود التشبيه"];
 const RUNG_EN=[{en:"The concept",fr:"Le concept"},{en:"In physics",fr:"En physique"},{en:"In the community",fr:"Dans la société"},{en:"In the world",fr:"Dans le monde"},{en:"In values",fr:"Dans les valeurs"},{en:"Limits of the analogy",fr:"Limites de l'analogie"}];
@@ -1577,6 +1578,7 @@ function bindLadder(rerender){
   document.querySelectorAll("[data-ladt]").forEach(b=>b.onclick=()=>{S.ladTab=S.ladTab||{};S.ladTab[S.lesson||"L3"]=+b.dataset.ladt;save();rerender();});
 }
 function teacherLayerHTML(tx){
+  if(!SHOW_REF_LAYER) return "";
   if(!S.valuesOn) return `<section class="card"><span class="kicker">${tx("Values track · optional teacher reference","Parcours des valeurs · référence enseignant optionnelle")}</span>
     <p style="margin:0">${tx("The concept ladders are visible to every student. A separate teacher-only reference layer links each ladder to the value it leads toward within a research framework on education through values (drawn from the Islamic tradition). It is off by default and is enabled only for schools that request it in their agreement.","Les échelles de concepts sont visibles par tous les élèves. Une couche de référence séparée, réservée aux enseignants, relie chaque échelle à la valeur visée dans un cadre de recherche sur l'éducation par les valeurs (issu de la tradition islamique). Elle est désactivée par défaut et activée seulement pour les écoles qui la demandent dans leur convention.")}</p>
     <div class="row"><button class="btn ghost" id="valOn">${tx("Show the reference layer (school opted in)","Afficher la couche de référence (école ayant choisi l'option)")}</button></div></section>`;
@@ -1826,7 +1828,7 @@ function teacherGuideHTML(id,tx){
     <section class="card"><h3>${tx("Make step: materials and tips","Étape Fabriquer : matériel et conseils")}</h3><ul>${g.mat.map(o=>`<li>${L(o)}</li>`).join("")}</ul></section>
     ${lad?`<section class="card"><h3>${tx("Values ladder","Échelle des valeurs")}: <span class="ar" style="display:inline">${lad.t}</span></h3>
       <p style="margin:0;font-size:.95rem">${tx("Target value","Valeur visée")}: <b>${lay?L(lay.v):""}</b></p>
-      ${S.valuesOn?`<p style="margin:0;font-size:.95rem">${tx("Reference layer (do not read out)","Couche de référence (ne pas lire en classe)")}: <span class="ar" style="display:inline">${lay?lay.n+" · "+lay.r:""}</span></p>`:""}
+      ${SHOW_REF_LAYER&&S.valuesOn?`<p style="margin:0;font-size:.95rem">${tx("Reference layer (do not read out)","Couche de référence (ne pas lire en classe)")}: <span class="ar" style="display:inline">${lay?lay.n+" · "+lay.r:""}</span></p>`:""}
       <p class="muted" style="margin:0;font-size:.9rem">${tx("Let the value come from the students' reasoning. If a student names a religious source, welcome it as one reason among others.","Laisser la valeur venir du raisonnement des élèves. Si un élève cite une source religieuse, l'accueillir comme une raison parmi d'autres.")}</p></section>`:""}
   </div>
   <section class="card"><h3>${tx("Assessment rubric: written argument (steps 2 and 6)","Grille d'évaluation : argument écrit (étapes 2 et 6)")}</h3>

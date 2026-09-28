@@ -326,7 +326,10 @@ td.mono{font-family:var(--mono)}
 .cnum{font-family:var(--mono);font-size:.8rem;color:var(--primary);text-transform:uppercase;letter-spacing:.06em}
 .ggroup{display:grid;gap:10px}
 .ggroup h2{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;font-family:var(--sans);font-weight:600}
-.ggrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px}
+.gwrap{display:grid;gap:26px;align-items:start}
+.gwrap>.ggroup{margin:0;align-content:start}
+@media (min-width:1000px){.gwrap{grid-template-columns:1fr 1fr;gap:28px}}
+.ggrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:560px){.ggrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gcard{min-height:0;padding:14px}.gcard .gn{font-size:2rem}}
 .gcard{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:4px;align-content:start;min-height:150px}
 .gcard:hover{border-color:var(--primary)}
@@ -4953,7 +4956,7 @@ function renderGrades(){
     <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("Choose your grade","Choisis ton niveau")}</h1>
     <p class="lede">${tx("Sabab follows the Lebanese national programme. Grade 11 mechanics is open now. The other grades are being prepared, and the waitlist decides which one opens next.","Sabab suit le programme national libanais. La mécanique de Première est ouverte. Les autres niveaux sont en préparation, et la liste d'attente décide lequel ouvrira ensuite.")}</p>
   </section>
-  <div style="display:grid;gap:26px">
+  <div class="gwrap">
     <section class="ggroup"><h2>${tx("Intermediate · Grades 7–9","Complémentaire · EB7–EB9")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="mid").map(card).join("")}</div></section>
     <section class="ggroup"><h2>${tx("Secondary · Grades 10–12","Secondaire · Seconde à Terminale")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="sec").map(card).join("")}</div></section>
   </div>`;

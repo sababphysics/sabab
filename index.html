@@ -381,6 +381,41 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 @media (max-width:760px){.wl{grid-template-columns:1fr}}
 .demo{font-size:.78rem;color:var(--muted);text-align:center;padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== design pass (layout, mobile, Arabic) ===== */
+.hero .ar-tag{color:var(--ink);font-size:1.45rem}
+.why3 .wlead{margin:0;font-weight:600;font-size:1.05rem}
+.why3 .card{grid-template-rows:auto auto 1fr auto}
+.why3 ul{margin:0}
+.gaph{margin:26px 0 10px;font-size:1.15rem}
+.inside{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:860px){.inside{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){
+  .inside{grid-template-columns:1fr;gap:10px}
+  .inside .tile{grid-template-columns:96px minmax(0,1fr);column-gap:14px;row-gap:2px;padding:12px;align-items:center}
+  .inside .tile>.pic{grid-row:1 / span 3;width:96px;aspect-ratio:1/1!important;height:auto;margin:0;border-radius:12px}
+  .inside .tile>.pic img{aspect-ratio:1/1!important;height:100%;object-fit:cover}
+  .inside .tile>.minicovers{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px;gap:4px}
+  .inside .tile>.minicovers i:nth-child(n+5){display:none}
+  .inside .tile>.minicovers em{display:none}
+  .inside .tile small{display:none}
+}
+.thinkpic{display:block;aspect-ratio:16/9;overflow:hidden;border-radius:10px}
+.thinkpic svg{width:100%;height:100%;display:block}
+.books{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:860px){.books{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+.lgrid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.lcard.locked{background:var(--surface-2);border-style:solid;border-color:var(--line)}
+.lcard.locked h3{color:var(--muted)}
+@media (max-width:640px){
+  .bar .in{gap:8px;padding-block:8px}
+  #tagline{display:none}
+  .bar .views{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+  .bar .views::-webkit-scrollbar{display:none}
+  .bar .views button{flex:0 0 auto}
+  .betabar{flex-wrap:nowrap;padding:6px 12px;font-size:.85rem}
+  .betabar .bb-long{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -491,12 +526,14 @@ function waitlistHTML(tx){
 function betaDecorate(){
   if(!BETA.on) return;
   const bar=document.getElementById("betaBar");
-  if(bar) bar.innerHTML=`<span><b>${L({en:"Pilot version",fr:"Version pilote"})}</b> · ${L({en:"New lessons open as physics teachers review them.",fr:"Les nouvelles leçons ouvrent après relecture par des enseignants de physique."})}</span><button class="linkbtn" id="betaWl">${L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"})} →</button>`;
+  if(bar) bar.innerHTML=`<span><b>${L({en:"Pilot version",fr:"Version pilote"})}</b><span class="bb-long"> · ${L({en:"New lessons open as physics teachers review them.",fr:"Les nouvelles leçons ouvrent après relecture par des enseignants de physique."})}</span></span><button class="linkbtn" id="betaWl">${L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"})} →</button>`;
   const b=document.getElementById("betaWl"); if(b) b.onclick=goWaitlist;
   const chip=L({en:"In review",fr:"En relecture"});
-  document.querySelectorAll("[data-open]").forEach(el=>{if(betaLockedLesson(el.dataset.open)&&!el.classList.contains("is-locked")){el.classList.add("is-locked");el.insertAdjacentHTML("beforeend",`<span class="lockchip">${chip}</span>`);}});
+  document.querySelectorAll("[data-open]").forEach(el=>{if(!betaLockedLesson(el.dataset.open)||el.dataset.bl)return;el.dataset.bl=1;
+    if(el.closest(".lcard")){el.classList.add("ghost");el.innerHTML="🔒 "+L({en:"Notify me",fr:"Me prévenir"});}
+    else{el.classList.add("is-locked");el.insertAdjacentHTML("beforeend",`<span class="lockchip">${chip}</span>`);}});
   document.querySelectorAll("[data-tg]").forEach(el=>{if(betaLockedLesson(el.dataset.tg))el.classList.add("is-locked");});
-  document.querySelectorAll("[data-explore]").forEach(el=>{if(betaLockedExplore(el.dataset.explore)&&!el.classList.contains("is-locked")){el.classList.add("is-locked");el.insertAdjacentHTML("afterend",`<span class="lockchip">${L({en:"Opens soon",fr:"Bientôt"})}</span>`);}});
+  document.querySelectorAll("[data-explore]").forEach(el=>{if(betaLockedExplore(el.dataset.explore)&&!el.classList.contains("is-locked")){el.classList.add("is-locked");el.insertAdjacentHTML("afterend",`<span class="lockchip">${L({en:"Coming soon",fr:"Bientôt"})}</span>`);}});
   const d=document.getElementById("demoNote"); if(d) d.textContent=L({en:"Pilot version. Your answers are saved only on this device. Visits are counted anonymously, without cookies.",fr:"Version pilote. Tes réponses sont enregistrées uniquement sur cet appareil. Les visites sont comptées anonymement, sans cookies."});
 }
 function go(v){if(BETA.on&&v==="voices"){waitlistModal("voices");return;}S.view=v;save();render();window.scrollTo({top:0,behavior:"smooth"});}
@@ -1108,53 +1145,15 @@ function renderHome(){
     <h1>${tx("Don't just memorise the law. Find its","Ne mémorise pas seulement la loi. Trouve sa")} <span class="why">${tx("reason.","raison.")}</span></h1>
     <span class="ar-tag">لا تحفظ القانون فقط. اكتشف سببه.</span>
     <p class="lede">${tx("Sabab (سبب) means \"the reason\". Every lesson starts with a real question, lets you find the law in your own data, and ends with a question physics alone cannot answer.","Sabab (سبب) veut dire « la raison ». Chaque leçon part d'une vraie question, te fait trouver la loi dans tes propres données, et se termine par une question à laquelle la physique seule ne peut pas répondre.")}</p>
-    <div class="row"><button class="btn" id="hTry">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button><button class="btn ghost" id="hLib">${tx("Visit the library","Visiter la bibliothèque")}</button><button class="btn ghost" id="hSch">${tx("For schools","Pour les écoles")}</button></div>
+    <div class="row"><button class="btn" id="hTry">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button><button class="btn ghost" id="hSch">${tx("For schools","Pour les écoles")}</button></div>
   </div>${photo(PHOTO_DISCUSS,"",tx("Four secondary students discussing a physics question around a table with a lever and a pulley","Quatre élèves du secondaire discutent d'une question de physique autour d'une table, avec un levier et une poulie"))}</section>
-  <section class="sec" id="whySabab">
-    <span class="kicker">${tx("Why Sabab","Pourquoi Sabab")}</span>
-    <h2>${tx("One name, one method: look for the reason","Un nom, une méthode&nbsp;: chercher la raison")}</h2>
-    <div class="tgrid why3">
-      <section class="card"><h3>${tx("For students","Pour les élèves")}</h3><ul>
-        <li><b>${tx("You discover it, you don't copy it.","Tu la découvres, tu ne la recopies pas.")}</b> ${tx("Run the virtual lab, collect your own data, and see the equation come out of it.","Lance le labo virtuel, relève tes propres données, et vois l'équation en sortir.")}</li>
-        <li><b>${tx("You build something real.","Tu construis quelque chose de réel.")}</b> ${tx("An Arduino experiment or a recycled-materials challenge in every lesson.","Une expérience Arduino ou un défi en matériaux recyclés dans chaque leçon.")}</li>
-        <li><b>${tx("You think past the exam.","Tu penses au-delà de l'examen.")}</b> ${tx("Each lesson ends with six questions that go from physics to people, to the world, to how you live.","Chaque leçon se termine par six questions qui vont de la physique aux gens, au monde, à ta façon de vivre.")}</li></ul>
-        <button class="btn" id="wStu">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button></section>
-      <section class="card"><h3>${tx("For teachers","Pour les enseignants")}</h3><ul>
-        <li><b>${tx("A ready lesson plan for every lesson.","Un plan prêt pour chaque leçon.")}</b> ${tx("Timeline, objectives, misconceptions, facilitation moves and a rubric, for all ten mechanics lessons.","Déroulement, objectifs, conceptions erronées, relances et grille, pour les dix leçons de mécanique.")}</li>
-        <li><b>${tx("No lab? You still have a lab.","Pas de labo ? Tu as quand même un labo.")}</b> ${tx("Every lesson has a simulation students can run on a phone and collect real data from.","Chaque leçon a une simulation que les élèves lancent sur téléphone pour relever de vraies données.")}</li>
-        <li><b>${tx("The reform asks for discussion; Sabab gives you the questions.","La réforme demande la discussion ; Sabab te donne les questions.")}</b> ${tx("Ready prompts and a six-step ladder from physics to life and values.","Des relances prêtes et une échelle en six marches, de la physique à la vie et aux valeurs.")}</li>
-        <li><b>${tx("See how students think, not just what they answer.","Vois comment les élèves pensent, pas seulement ce qu'ils répondent.")}</b> ${tx("Students record their position before and after, so you see if and how it changed.","Les élèves notent leur position avant et après : tu vois si et comment elle a changé.")}</li></ul>
-        <button class="btn" id="wTea">${tx("Try a lesson with your class","Essayer une leçon avec ta classe")} →</button></section>
-      <section class="card"><h3>${tx("For schools","Pour les écoles")}</h3><ul>
-        <li><b>${tx("Follows the CRDP 2025–26 programme.","Suit le programme CRDP 2025–26.")}</b> ${tx("Grade 11 mechanics, chapter by chapter, including this year's suspended sections.","Mécanique de 1re, chapitre par chapitre, en tenant compte des parties suspendues cette année.")}</li>
-        <li><b>${tx("Builds the competencies the reform asks for.","Développe les compétences demandées par la réforme.")}</b> ${tx("Critical thinking, inquiry, digital, creativity and communication, tracked for every student.","Pensée critique, investigation, numérique, créativité et communication, suivies pour chaque élève.")}</li>
-        <li><b>${tx("Fits your classrooms.","S'adapte à vos classes.")}</b> ${tx("Works on a phone; physics in English or French; discussion can happen in Arabic.","Fonctionne sur téléphone ; physique en anglais ou en français ; discussion possible en arabe.")}</li></ul>
-        <button class="btn" id="wSch">${tx("Bring Sabab to your school","Faire venir Sabab dans votre école")} →</button></section>
-    </div>
-  </section>
-  ${morinBandHTML(tx)}
-  ${waitlistHTML(tx)}
-  <section class="sec">
-    <span class="kicker">${tx("Why now","Pourquoi maintenant")}</span>
-    <h2>${tx("The region is asking for thinking, not memorising","La région demande de penser, pas de mémoriser")}</h2>
-    <div class="signals">${sig.map(s=>`<article class="signal"><span class="chip kind">${s.kind}</span><span class="yr">${s.yr}</span><span class="cty">${s.cty}</span><h3>${s.h}</h3><p>${s.p}</p><div class="src">${s.src.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join("")}</div></article>`).join("")}</div>
-  </section>
-  <section class="sec">
-    <span class="kicker">${tx("The gap","Le manque")}</span>
-    <h2>${tx("Yet no platform brings the pieces together","Pourtant, aucune plateforme ne réunit les pièces")}</h2>
-    <div class="gap">
-      <div><b>${tx("Exam platforms","Plateformes d'examen")}</b><small>${tx("Past papers and videos. Good for drilling, silent on understanding.","Annales et vidéos. Utiles pour s'entraîner, muettes sur la compréhension.")}</small></div>
-      <div><b>${tx("Philosophy for Children programmes","Programmes de philosophie pour enfants")}</b><small>${tx("Train teachers to lead dialogue, but offer no physics content.","Forment les enseignants au dialogue, mais sans contenu de physique.")}</small></div>
-      <div><b>${tx("STEAM and robotics clubs","Clubs STEAM et robotique")}</b><small>${tx("Exciting projects, rarely linked to the physics curriculum or exams.","Projets motivants, rarement liés au programme de physique ou aux examens.")}</small></div>
-      <div class="us"><b>Sabab</b><small>${tx("Curriculum physics + philosophical questions + Arduino and STEAM labs + exam practice, in one place.","Physique du programme + questions philosophiques + labos Arduino et STEAM + préparation aux examens, au même endroit.")}</small></div>
-    </div>
-  </section>
   <section class="sec">
     <span class="kicker">${tx("What's inside","Ce que vous trouverez")}</span>
+    <h2>${tx("Everything in one place","Tout au même endroit")}</h2>
     <div class="inside">
-      <button class="tile" data-go="student">${photo(PHOTO_THINK,"sm","")}<b>${tx("Inquiry lessons","Leçons d'investigation")}</b><small class="muted">${tx("Hook, question, investigate, model, make, reflect. Aligned with CRDP chapters.","Accroche, question, enquête, modèle, fabrication, réflexion. Alignées sur le CRDP.")}</small><span class="go">${tx("Try Newton's laws","Essayer les lois de Newton")} →</span></button>
+      <button class="tile" data-go="grades">${photo(PHOTO_THINK,"sm","")}<b>${tx("Inquiry lessons","Leçons d'investigation")}</b><small class="muted">${tx("Hook, question, investigate, model, make, reflect. Aligned with CRDP chapters.","Accroche, question, enquête, modèle, fabrication, réflexion. Alignées sur le CRDP.")}</small><span class="go">${tx("Try Newton's laws","Essayer les lois de Newton")} →</span></button>
       <button class="tile" data-go="lab">${photo(PHOTO_ARDUINO,"sm","")}<b>${tx("Arduino & STEAM labs","Labos Arduino et STEAM")}</b><small class="muted">${tx("Measure real motion with a $10 sensor, or save an egg passenger with recycled materials.","Mesurer un vrai mouvement avec un capteur à 10 $, ou sauver un passager-œuf avec des matériaux recyclés.")}</small><span class="go">${tx("Open the lab","Ouvrir le labo")} →</span></button>
-      <button class="tile" data-go="thinkers"><span class="pic sm" aria-hidden="true" style="display:grid;place-items:center;aspect-ratio:16/9;background:var(--amber-soft);font-family:var(--display);font-size:2.2rem;color:var(--ink)">“ ”</span><b>${tx("Thinkers","Penseurs")}</b><small class="muted">${tx("Ibn al-Haytham, Ibn Sīnā, Galileo, Noether, Morin and others: one idea each, and where to meet it in the lessons.","Ibn al-Haytham, Ibn Sīnā, Galilée, Noether, Morin et d'autres : une idée chacun, et où la retrouver dans les leçons.")}</small><span class="go">${tx("Meet them","Les découvrir")} →</span></button>
+      <button class="tile" data-go="thinkers"><span class="pic sm thinkpic" aria-hidden="true"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice"><rect width="320" height="180" fill="#F6E7B8"/><rect x="0" y="138" width="320" height="42" fill="#E9D08C"/><rect x="36" y="92" width="8" height="48" fill="#7A5A2E"/><circle cx="40" cy="78" r="26" fill="#3F7D4E"/><circle cx="26" cy="92" r="16" fill="#4E9160"/><circle cx="54" cy="90" r="17" fill="#4E9160"/><rect x="150" y="52" width="140" height="92" rx="4" fill="#1F2A44"/><circle cx="150" cy="96" r="3.5" fill="#FFE7A8"/><polygon points="40,62 150,96 40,138" fill="#FFE7A8" opacity=".35"/><polygon points="150,96 286,64 286,128" fill="#FFE7A8" opacity=".18"/><rect x="265" y="66" width="6" height="24" fill="#C9A66B"/><circle cx="268" cy="104" r="14" fill="#8FC79E"/><circle cx="258" cy="95" r="9" fill="#A7D6B2"/><circle cx="278" cy="95" r="9" fill="#A7D6B2"/><text x="200" y="40" text-anchor="middle" font-family="Noto Kufi Arabic, sans-serif" font-size="15" font-weight="700" fill="#1F2A44">ابن الهيثم</text></svg></span><b>${tx("Thinkers","Penseurs")}</b><small class="muted">${tx("Ibn al-Haytham, Ibn Sīnā, Galileo, Noether, Morin and others: one idea each, and where to meet it in the lessons.","Ibn al-Haytham, Ibn Sīnā, Galilée, Noether, Morin et d'autres : une idée chacun, et où la retrouver dans les leçons.")}</small><span class="go">${tx("Meet them","Les découvrir")} →</span></button>
       <button class="tile" data-go="beyond"><span class="pic sm" aria-hidden="true" style="display:block;aspect-ratio:16/9;background:radial-gradient(circle at 35% 55%,#FFE7A8 0 7%,rgba(255,231,168,.25) 8% 14%,transparent 15%),radial-gradient(circle at 72% 40%,#7FB2E5 0 3%,transparent 4%),radial-gradient(circle at 20% 20%,#fff 0 .4%,transparent .6%),radial-gradient(circle at 85% 80%,#fff 0 .4%,transparent .6%),#0B1226"></span><b>${tx("Beyond the programme","Au-delà du programme")}</b><small class="muted">${tx("Modern physics and astronomy for the curious: exoplanets, relativity, the quantum world and the sky above Lebanon.","Physique moderne et astronomie pour les curieux : exoplanètes, relativité, monde quantique et ciel du Liban.")}</small><span class="go">${tx("Explore","Explorer")} →</span></button>
       <button class="tile" data-go="shop"><span class="pic sm minicovers" aria-hidden="true">${PRODUCTS.filter(x=>x.type==="story").map(x=>`<i style="background:${x.bg}"><em>${esc(L(x.t))}</em></i>`).join("")}</span><b>${tx("Library","Bibliothèque")}</b><small class="muted">${tx("Philosophical science stories, teacher guides, lab books and question cards.","Récits scientifiques philosophiques, guides, cahiers de labo et cartes-questions.")}</small><span class="go">${tx("Browse books","Voir les livres")} →</span></button>
       <button class="tile" data-go="voices">${photo(PHOTO_VOICES,"sm","")}<b>${tx("Student Voices","Voix des élèves")}</b><small class="muted">${tx("Students publish their stories, case studies and answers to the big questions. Everyone can read, react and comment for free.","Les élèves publient leurs récits, études de cas et réponses aux grandes questions. Chacun peut lire, réagir et commenter gratuitement.")}</small><span class="go">${tx("Read and join in","Lire et participer")} →</span></button>
@@ -1162,12 +1161,47 @@ function renderHome(){
     </div>
   </section>
   <section class="sec">
-    <span class="kicker">${tx("From the library","De la bibliothèque")}</span>
+    <div class="row" style="justify-content:space-between;align-items:baseline"><span class="kicker">${tx("From the library","De la bibliothèque")}</span><button class="linkbtn" id="hLib2" style="font-size:.9rem">${tx("See the whole library","Voir toute la bibliothèque")} →</button></div>
     <div class="books">${PRODUCTS.filter(p=>p.type==="story").slice(0,4).map(bookCard).join("")}</div>
-  </section>`;
+  </section>
+  <section class="sec" id="whySabab">
+    <span class="kicker">${tx("Why Sabab","Pourquoi Sabab")}</span>
+    <h2>${tx("One name, one method: look for the reason","Un nom, une méthode&nbsp;: chercher la raison")}</h2>
+    <div class="tgrid why3">
+      <section class="card"><h3>${tx("For students","Pour les élèves")}</h3>
+        <p class="wlead">${tx("You find the law yourself.","Tu trouves la loi toi-même.")}</p><ul>
+        <li>${tx("Run the lab, collect your own data, watch the equation appear.","Lance le labo, relève tes données, vois l'équation apparaître.")}</li>
+        <li>${tx("Build something real, then think past the exam.","Construis quelque chose de réel, puis pense au-delà de l'examen.")}</li></ul>
+        <button class="btn" id="wStu">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button></section>
+      <section class="card"><h3>${tx("For teachers","Pour les enseignants")}</h3>
+        <p class="wlead">${tx("A ready plan for every lesson.","Un plan prêt pour chaque leçon.")}</p><ul>
+        <li>${tx("Objectives, misconceptions, discussion prompts and a rubric.","Objectifs, conceptions erronées, relances et grille.")}</li>
+        <li>${tx("No lab? Every lesson has a simulation that runs on a phone.","Pas de labo ? Chaque leçon a une simulation qui marche sur téléphone.")}</li></ul>
+        <button class="btn" id="wTea">${tx("See a teacher guide","Voir un guide enseignant")} →</button></section>
+      <section class="card"><h3>${tx("For schools","Pour les écoles")}</h3>
+        <p class="wlead">${tx("Built on the CRDP programme.","Construit sur le programme du CRDP.")}</p><ul>
+        <li>${tx("Grade 11 mechanics, chapter by chapter.","La mécanique de Première, chapitre par chapitre.")}</li>
+        <li>${tx("Develops the competencies the reform asks for.","Développe les compétences demandées par la réforme.")}</li></ul>
+        <button class="btn" id="wSch">${tx("Bring Sabab to your school","Faire venir Sabab dans votre école")} →</button></section>
+    </div>
+  </section>
+  <section class="sec">
+    <span class="kicker">${tx("Why now","Pourquoi maintenant")}</span>
+    <h2>${tx("The region is asking for thinking, not memorising","La région demande de penser, pas de mémoriser")}</h2>
+    <div class="signals">${sig.map(s=>`<article class="signal"><span class="chip kind">${s.kind}</span><span class="yr">${s.yr}</span><span class="cty">${s.cty}</span><h3>${s.h}</h3><p>${s.p}</p><div class="src">${s.src.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join("")}</div></article>`).join("")}</div>
+    <h3 class="gaph">${tx("Yet no platform brings the pieces together","Pourtant, aucune plateforme ne réunit les pièces")}</h3>
+    <div class="gap">
+      <div><b>${tx("Exam platforms","Plateformes d'examen")}</b><small>${tx("Past papers and videos. Good for drilling, silent on understanding.","Annales et vidéos. Utiles pour s'entraîner, muettes sur la compréhension.")}</small></div>
+      <div><b>${tx("Philosophy for Children programmes","Programmes de philosophie pour enfants")}</b><small>${tx("Train teachers to lead dialogue, but offer no physics content.","Forment les enseignants au dialogue, mais sans contenu de physique.")}</small></div>
+      <div><b>${tx("STEAM and robotics clubs","Clubs STEAM et robotique")}</b><small>${tx("Exciting projects, rarely linked to the physics curriculum or exams.","Projets motivants, rarement liés au programme de physique ou aux examens.")}</small></div>
+      <div class="us"><b>Sabab</b><small>${tx("Curriculum physics + philosophical questions + Arduino and STEAM labs + exam practice, in one place.","Physique du programme + questions philosophiques + labos Arduino et STEAM + préparation aux examens, au même endroit.")}</small></div>
+    </div>
+  </section>
+  ${morinBandHTML(tx)}
+  ${waitlistHTML(tx)}`;
   $("#hTry").onclick=()=>openLesson(BETA.on?"L3":"L1",0);
-  $("#hLib").onclick=()=>go("shop");
   $("#hSch").onclick=()=>go("teacher");
+  $("#hLib2").onclick=()=>go("shop");
   $("#wStu").onclick=()=>openLesson(BETA.on?"L3":"L1",0);
   $("#hThink").onclick=()=>go("thinkers");
   $("#wTea").onclick=()=>{S.tLesson=BETA.on?"L3":"L1";save();go("teacher");};
@@ -2210,7 +2244,7 @@ function renderBeyond(){
   </section>
   ${BEYOND.map(th=>`<section class="sec"><div class="row" style="align-items:baseline;gap:12px"><h2 style="margin:0">${L(th.t)}</h2><span class="ar" style="display:inline;color:var(--muted)">${th.ar}</span></div>
     <div class="bgrid">${th.items.map(x=>`<article class="bcard ${x.live?"live":""}">
-      <div class="row" style="gap:6px">${x.live?`<span class="chip" style="background:var(--primary);color:#fff">${tx("Open now","Disponible")}</span>`:`<span class="chip">${tx("Coming soon","Bientôt")}</span>`}${x.link?`<span class="chip">${tx("Connects to Lesson","Prolonge la leçon")} ${LESSON_NUM(x.link)}</span>`:""}</div>
+      <div class="row" style="gap:6px">${x.live?`<span class="chip" style="background:var(--primary);color:#fff">${tx("Open","Ouvert")}</span>`:`<span class="chip">${tx("Coming soon","Bientôt")}</span>`}${x.link?`<span class="chip">${tx("Connects to Lesson","Prolonge la leçon")} ${LESSON_NUM(x.link)}</span>`:""}</div>
       <h3>${L(x.t)}</h3><p class="ar" style="margin:0;font-size:.95rem">${x.ar}</p><p class="muted" style="margin:0;font-size:.93rem">${L(x.d)}</p>
       ${x.live?`<button class="btn" data-explore="${x.id}">${tx("Explore","Explorer")} →</button>`:""}</article>`).join("")}</div></section>`).join("")}
   <p class="muted" style="font-size:.88rem">${tx("Every exploration is checked by a physics teacher before it opens. Where scientists do not yet know the answer, the exploration says so.","Chaque exploration est vérifiée par un enseignant de physique avant d'ouvrir. Quand les scientifiques ne connaissent pas encore la réponse, l'exploration le dit.")}</p>`;
@@ -4948,7 +4982,7 @@ function renderGrades(){
       <span class="gt">${tx(x.en,x.fr)}</span>
       <span class="ar" lang="ar" dir="rtl">${x.ar}</span>
       <span class="gs">${x.live?tx(`${nL} lessons · Mechanics`,`${nL} leçons · Mécanique`):x.exam?L(x.exam):tx("Physics","Physique")}</span>
-      ${x.live?`<span class="chip ok-chip">${tx(`${nOpen} open now →`,`${nOpen} ${nOpen===1?"ouverte":"ouvertes"} →`)}</span>`:`<span class="chip">${tx("Coming soon","Bientôt")}</span>`}
+      ${x.live?`<span class="chip ok-chip">${tx(`${nOpen} open →`,`${nOpen} ${nOpen===1?"ouverte":"ouvertes"} →`)}</span>`:`<span class="chip">${tx("Coming soon","Bientôt")}</span>`}
     </button>`;
   $("#main").innerHTML=`
   <section class="hero" style="padding-block:8px 0">
@@ -4971,22 +5005,22 @@ function renderUnit(){
     <span class="kick">${tx("Grade 11 · Scientific section · Mechanics","1re (Grade 11) · Section scientifique · Mécanique")}</span>
     <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("The mechanics unit, one big question per lesson","L'unité de mécanique, une grande question par leçon")}</h1>
     <p class="lede">${tx(`${nL} inquiry lessons covering the 5 mechanics chapters required by CRDP for 2025–2026 (${total} periods). Each lesson follows the same path: hook, question, investigate, model, make, reflect.`,`${nL} leçons d'investigation couvrant les 5 chapitres de mécanique exigés par le CRDP pour 2025–2026 (${total} périodes). Chaque leçon suit le même parcours : accroche, question, enquête, modèle, fabrication, réflexion.`)}</p>
-    ${(()=>{const nLive=UNIT.reduce((a,c)=>a+c.lessons.filter(l=>l.live&&!betaLockedLesson(l.live)).length,0);return `<div class="row"><span class="chip ok-chip">${tx(`${nLive} ${nLive===1?"lesson":"lessons"} open now`,`${nLive} ${nLive===1?"leçon ouverte":"leçons ouvertes"}`)}</span><span class="chip">${tx(`${nL-nLive} in review by physics teachers`,`${nL-nLive} en relecture par des enseignants de physique`)}</span></div>`;})()}
+    ${(()=>{const nLive=UNIT.reduce((a,c)=>a+c.lessons.filter(l=>l.live&&!betaLockedLesson(l.live)).length,0);return `<div class="row"><span class="chip ok-chip">${tx(`${nLive} ${nLive===1?"lesson":"lessons"} open`,`${nLive} ${nLive===1?"leçon ouverte":"leçons ouvertes"}`)}</span><span class="chip">${tx(`${nL-nLive} in review by physics teachers`,`${nL-nLive} en relecture par des enseignants de physique`)}</span></div>`;})()}
   </section>
   <div style="display:grid;gap:26px">${UNIT.map(c=>`
     <section class="chap">
       <div class="chead"><span class="cnum">${tx("Chapter","Chapitre")} ${c.ch}</span><h2>${L(c.t)}</h2><span class="muted mono" style="font-size:.85rem">${c.per} ${tx("periods","périodes")}</span></div>
       ${c.note?`<p class="note" style="font-size:.85rem">${L(c.note)}</p>`:""}
       <div class="lgrid">${c.lessons.map(l=>`
-        <article class="lcard ${l.live?"live":""}">
-          <div class="row" style="justify-content:space-between"><span class="lnum">${tx("Lesson","Leçon")} ${l.n}</span><span class="chip ${l.live&&!betaLockedLesson(l.live)?"ok-chip":""}">${l.live&&!betaLockedLesson(l.live)?tx("Open now","Ouverte"):l.live?tx("In review","En relecture"):tx("In preparation","En préparation")}</span></div>
+        <article class="lcard ${l.live&&!betaLockedLesson(l.live)?"live":""} ${l.live&&betaLockedLesson(l.live)?"locked":""}">
+          <div class="row" style="justify-content:space-between"><span class="lnum">${tx("Lesson","Leçon")} ${l.n}</span><span class="chip ${l.live&&!betaLockedLesson(l.live)?"ok-chip":""}">${l.live&&!betaLockedLesson(l.live)?tx("Open","Ouverte"):l.live?tx("In review","En relecture"):tx("Coming soon","Bientôt")}</span></div>
           <h3>${L(l.t)}</h3>
-          <p class="ar" style="font-size:.95rem;color:var(--muted)">${l.ar}</p>
+          <p class="ar" style="font-size:1rem">${l.ar}</p>
           <p class="muted" style="font-size:.88rem">${L(l.topic)}</p>
           <div class="row" style="gap:6px">${l.comps.slice(0,3).map(k=>`<span class="chip">${L(COMPN[k])}</span>`).join("")}</div>
           <div class="row">${l.live?`<button class="btn" data-open="${l.live}">${tx("Open lesson","Ouvrir la leçon")} →</button>`:""}<button class="btn ghost" data-prev="${l.n}">${tx("Preview","Aperçu")}</button></div>
         </article>`).join("")}</div>
-      ${c.skills?`<div class="lgrid">${c.skills.map(k=>{const q=SKILLS[k];return `<article class="lcard" style="border-style:dashed"><div class="row" style="justify-content:space-between"><span class="lnum">${tx("Skill builder","Atelier")} ${q.code}</span><span class="chip ok-chip">${tx("Available","Disponible")}</span></div><h3>${L(q.title)}</h3><p class="muted" style="font-size:.88rem">${L(q.lede)}</p><div class="row"><button class="btn ghost" data-skill="${k}">${tx("Open","Ouvrir")} →</button></div></article>`;}).join("")}</div>`:""}
+      ${c.skills?`<div class="lgrid">${c.skills.map(k=>{const q=SKILLS[k];return `<article class="lcard" style="border-style:dashed"><div class="row" style="justify-content:space-between"><span class="lnum">${tx("Skill builder","Atelier")} ${q.code}</span><span class="chip ok-chip">${tx("Open","Ouvert")}</span></div><h3>${L(q.title)}</h3><p class="muted" style="font-size:.88rem">${L(q.lede)}</p><div class="row"><button class="btn ghost" data-skill="${k}">${tx("Open","Ouvrir")} →</button></div></article>`;}).join("")}</div>`:""}
     </section>`).join("")}</div>
   <p class="note" style="margin-top:22px;font-size:.85rem">${tx("Chapters and periods follow CRDP's list of physics content required for 2025–2026 (Grade 11, Sciences). Lesson designs are drafts for review by the teaching team.","Chapitres et périodes selon la liste du CRDP des contenus de physique exigés pour 2025–2026 (1re, Sciences). Les leçons sont des brouillons à valider par l'équipe pédagogique.")}</p>`;
   document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openLesson(b.dataset.open));

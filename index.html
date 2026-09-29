@@ -382,6 +382,25 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 .demo{font-size:.78rem;color:var(--muted);text-align:center;padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+
+/* ===== pioneers, role chooser, nudge ===== */
+.rolebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:6px}
+.rolebar b{font-size:1rem}
+.rolebtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rolebtn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--surface-2);font-weight:600;font-size:.92rem;color:var(--ink)}
+.rolebtn:hover,.rolebtn:focus-visible{background:var(--primary-soft);color:var(--primary);outline:none}
+.rolebar.chosen{background:var(--primary-soft);border-color:transparent}
+.rolebar.chosen>span{font-weight:600;max-width:60ch}
+.rolebar .btn{padding:8px 14px}
+.guidecta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;background:var(--amber-soft);border-color:transparent}
+.nextfirst{background:var(--primary-soft);border-color:transparent}
+.nudge{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;max-width:320px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 40px -18px rgba(0,0,0,.45);padding:14px 16px;display:grid;gap:6px;animation:nudgeIn .35s ease-out}
+.nudge span{color:var(--muted);font-size:.9rem}
+.nudge .btn{justify-self:start;margin-top:4px}
+.nudge .nx{all:unset;cursor:pointer;position:absolute;top:6px;right:10px;font-size:1.2rem;color:var(--muted)}
+@keyframes nudgeIn{from{transform:translateY(12px);opacity:.3}to{transform:none;opacity:1}}
+@media (max-width:560px){.nudge{left:16px;right:16px;max-width:none}.rolebar{padding:12px}.rolebar:not(.chosen) .rolebtns{display:grid;grid-template-columns:1fr 1fr;width:100%}.rolebtn{padding:9px 12px;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.nudge{animation:none}}
 /* ===== smart search + glossary ===== */
 .sbtn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--surface-2);color:var(--ink);font-size:.85rem;font-weight:600}
 .sbtn:hover{color:var(--primary)}
@@ -535,36 +554,54 @@ const BETA={
   lessons:["L3"],          // lessons open to the public during the pilot
   explore:["B1"],          // Beyond explorations open during the pilot
   tally:"obW42O",          // Tally form ID (tally.so/r/obW42O)
-  email:""                 // optional contact email, e.g. "hello@sababphysics.com"
+  email:"",                // optional contact email, e.g. "hello@sababphysics.com"
+  tallyGuide:"",           // Tally form ID for the teacher-guide download form
+  guidePdf:"assets/sabab-lesson3-teacher-guide.pdf"
 };
 /* =================================================================== */
 function betaLockedLesson(id){return BETA.on&&!BETA.lessons.includes(id);}
 function betaLockedExplore(id){return BETA.on&&!BETA.explore.includes(id);}
-function goWaitlist(){const f=()=>{const el=document.getElementById("waitlist");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});};if(S.view!=="home"){S.view="home";save();render();setTimeout(f,120);}else f();}
+function goWaitlist(){S.nudged=true;const n0=document.getElementById("nudge");if(n0)n0.remove();const f=()=>{const el=document.getElementById("waitlist");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});};if(S.view!=="home"){S.view="home";save();render();setTimeout(f,120);}else f();}
+function gcEvent(path,title){try{if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:path,title:title||path,event:true});}catch(e){}}
+const _gcOnce=new Set();function gcOnce(path,title){if(_gcOnce.has(path))return;_gcOnce.add(path);gcEvent(path,title);}
+window.addEventListener("message",e=>{try{const d=typeof e.data==="string"?e.data:JSON.stringify(e.data||"");if(d.includes("Tally.FormSubmitted")){const guide=!!document.querySelector(".guideform");S.joined=true;save();gcEvent(guide?"guide/submitted":"pioneer/submitted",guide?"Teacher guide form sent":"Pioneer form sent");const n=document.getElementById("nudge");if(n)n.remove();}}catch(err){}});
+function tallyFrame(id,h,title){return `<iframe src="https://tally.so/embed/${id}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="${h}" frameborder="0" title="${title}" style="border:0;max-width:100%"></iframe>`;}
+const PRIV={en:"We only use your email to tell you about new lessons. Under 18? Ask a parent first.",fr:"Nous utilisons ton e-mail uniquement pour t'annoncer les nouvelles leçons. Moins de 18 ans ? Demande d'abord à un parent."};
+function guideModal(){
+  gcEvent("guide/opened","Teacher guide requested");
+  const form=BETA.tallyGuide?tallyFrame(BETA.tallyGuide,560,L({en:"Teacher guide download",fr:"Téléchargement du guide"})):(BETA.tally?tallyFrame(BETA.tally,700,"Sabab"):"");
+  const m=openModal(`<div class="guideform"><span class="kicker">${L({en:"For teachers · Free",fr:"Pour les enseignants · Gratuit"})}</span><h2>${L({en:"Lesson 3 teacher guide (PDF)",fr:"Guide enseignant de la leçon 3 (PDF)"})}</h2>
+    <p>${L({en:"Timeline for 3 sessions, objectives, misconceptions and how to challenge them, facilitation moves, the Arduino and egg challenges, a rubric and a student worksheet.",fr:"Déroulement en 3 séances, objectifs, conceptions erronées et comment les travailler, relances, défis Arduino et œuf, grille d'évaluation et fiche élève."})}</p>
+    <p class="muted" style="font-size:.9rem">${BETA.tallyGuide?L({en:"Enter your details: the download opens right after.",fr:"Indique tes coordonnées : le téléchargement s'ouvre juste après."}):L({en:"Choose \"Teacher\" in the form and we'll send you the guide by email.",fr:"Choisis « Enseignant » dans le formulaire et nous t'enverrons le guide par e-mail."})}</p>
+    ${form}<p class="muted" style="font-size:.8rem">${L({en:"We only use your email for Sabab news and the teacher pilot.",fr:"Nous utilisons ton e-mail uniquement pour les nouvelles de Sabab et le pilote enseignants."})}</p></div>`);
+  return m;
+}
 function waitlistModal(kind){
-  const msg={lesson:{en:"This lesson is being reviewed by physics teachers and opens soon. Join the waitlist to get it first.",fr:"Cette leçon est en relecture par des enseignants de physique et ouvrira bientôt. Inscris-toi sur la liste d'attente pour l'avoir en premier."},
-    explore:{en:"This exploration opens soon. Join the waitlist to get it first.",fr:"Cette exploration ouvrira bientôt. Inscris-toi sur la liste d'attente pour l'avoir en premier."},
-    grade:{en:"Lessons for this grade are being prepared. Join the waitlist and tell us your grade: we open the most requested grades first.",fr:"Les leçons de ce niveau sont en préparation. Inscris-toi sur la liste d'attente et indique ton niveau : nous ouvrirons d'abord les niveaux les plus demandés."},
-    voices:{en:"Student Voices opens once moderation is in place. Join the waitlist to be told when it does.",fr:"Voix des élèves ouvrira quand la modération sera en place. Inscris-toi sur la liste d'attente pour être prévenu."}}[kind]||{en:"Coming soon.",fr:"Bientôt."};
-  const m=openModal(`<span class="kicker">${L({en:"Pilot version",fr:"Version pilote"})}</span><h2>${L({en:"Coming soon",fr:"Bientôt disponible"})}</h2><p>${L(msg)}</p><div class="row"><button class="btn" id="wlGo">${L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"})} →</button></div>`);
-  document.getElementById("wlGo").onclick=()=>{m.close();goWaitlist();};
+  const msg={lesson:{en:"This lesson is being reviewed by physics teachers and opens soon. Become a Sabab pioneer (free) and get it first.",fr:"Cette leçon est en relecture par des enseignants de physique et ouvrira bientôt. Deviens un pionnier de Sabab (gratuit) et reçois-la en premier."},
+    explore:{en:"This exploration opens soon. Become a Sabab pioneer (free) and get it first.",fr:"Cette exploration ouvrira bientôt. Deviens un pionnier de Sabab (gratuit) et reçois-la en premier."},
+    grade:{en:"Lessons for this grade are being prepared. Become a Sabab pioneer and tell us your grade: we open the most requested grades first.",fr:"Les leçons de ce niveau sont en préparation. Deviens un pionnier de Sabab et indique ton niveau : nous ouvrirons d'abord les niveaux les plus demandés."},
+    voices:{en:"Student Voices opens once moderation is in place. Become a Sabab pioneer to be told when it does.",fr:"Voix des élèves ouvrira quand la modération sera en place. Deviens un pionnier de Sabab pour être prévenu."}}[kind]||{en:"Coming soon.",fr:"Bientôt."};
+  const m=openModal(`<span class="kicker">${L({en:"Pilot version",fr:"Version pilote"})}</span><h2>${L({en:"Coming soon",fr:"Bientôt disponible"})}</h2><p>${L(msg)}</p><div class="row"><button class="btn" id="wlGo">${L({en:"Get the next lesson first",fr:"Recevoir la prochaine leçon en premier"})} →</button></div>`);
+  gcEvent("locked/"+kind,"Locked item clicked");
+  document.getElementById("wlGo").onclick=()=>{m.close();gcEvent("pioneer/cta-"+kind);goWaitlist();};
 }
 function waitlistHTML(tx){
-  const form=BETA.tally?`<iframe src="https://tally.so/embed/${BETA.tally}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="820" frameborder="0" title="${tx("Sabab waitlist","Liste d'attente Sabab")}" style="border:0;max-width:100%"></iframe>`
+  const form=BETA.tally?tallyFrame(BETA.tally,820,tx("Become a Sabab pioneer","Deviens un pionnier de Sabab"))+`<p class="muted" style="font-size:.82rem;margin:4px 0 0">${L(PRIV)}</p>`
     :BETA.email?`<a class="btn" href="mailto:${BETA.email}?subject=${encodeURIComponent("Sabab waitlist")}">${tx("Join by email","S'inscrire par e-mail")}: ${BETA.email}</a>`
     :`<p class="note">${tx("The waitlist form opens in a few days.","Le formulaire d'inscription ouvre dans quelques jours.")}</p>`;
   return `<section class="sec wl" id="waitlist">
-    <div class="wl-copy"><span class="kicker">${tx("Pilot · Waitlist","Pilote · Liste d'attente")}</span>
-      <h2>${tx("Be among the first","Sois parmi les premiers")}</h2>
+    <div class="wl-copy"><span class="kicker">${tx("Pilot · Sabab pioneers","Pilote · Pionniers de Sabab")}</span>
+      <h2>${tx("Become a Sabab pioneer","Deviens un pionnier de Sabab")}</h2>
+      <p style="font-weight:600;margin:0">${tx("Free. Get each new lesson first, and help shape Sabab.","Gratuit. Reçois chaque nouvelle leçon en premier et aide à construire Sabab.")}</p>
       <p>${tx("Sabab is opening lesson by lesson, as each one is reviewed by physics teachers. Lesson 3, the stories, the film and the first Beyond exploration are open now.","Sabab ouvre leçon par leçon, au fur et à mesure de la relecture par des enseignants de physique. La leçon 3, les récits, le film et la première exploration Au-delà sont déjà ouverts.")}</p>
-      <ul class="wl-list"><li><b>${tx("Students","Élèves")}</b> ${tx("get each new lesson first.","reçoivent chaque nouvelle leçon en premier.")}</li><li><b>${tx("Teachers","Enseignants")}</b> ${tx("can join the pilot with their class.","peuvent rejoindre le pilote avec leur classe.")}</li><li><b>${tx("Schools","Écoles")}</b> ${tx("can ask about the school pack.","peuvent se renseigner sur le pack école.")}</li></ul></div>
+      <ul class="wl-list"><li><b>${tx("Students","Élèves")}</b> ${tx("get each new lesson first.","reçoivent chaque nouvelle leçon en premier.")}</li><li><b>${tx("Teachers","Enseignants")}</b> ${tx("join the teacher pilot with their class, and get the Lesson 3 teacher guide.","rejoignent le pilote enseignants avec leur classe et reçoivent le guide de la leçon 3.")}</li><li><b>${tx("Schools","Écoles")}</b> ${tx("can ask about the school pack.","peuvent se renseigner sur le pack école.")}</li></ul></div>
     <div class="wl-form">${form}</div></section>`;
 }
 function betaDecorate(){
   if(!BETA.on) return;
   const bar=document.getElementById("betaBar");
-  if(bar) bar.innerHTML=`<span><b>${L({en:"Pilot version",fr:"Version pilote"})}</b><span class="bb-long"> · ${L({en:"New lessons open as physics teachers review them.",fr:"Les nouvelles leçons ouvrent après relecture par des enseignants de physique."})}</span></span><button class="linkbtn" id="betaWl">${L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"})} →</button>`;
-  const b=document.getElementById("betaWl"); if(b) b.onclick=goWaitlist;
+  if(bar) bar.innerHTML=`<span><b>${L({en:"Pilot version",fr:"Version pilote"})}</b><span class="bb-long"> · ${L({en:"New lessons open as physics teachers review them.",fr:"Les nouvelles leçons ouvrent après relecture par des enseignants de physique."})}</span></span><button class="linkbtn" id="betaWl">${L({en:"Get the next lesson first",fr:"Recevoir la prochaine leçon en premier"})} →</button>`;
+  const b=document.getElementById("betaWl"); if(b) b.onclick=()=>{gcEvent("pioneer/cta-banner");goWaitlist();};
   const chip=L({en:"In review",fr:"En relecture"});
   document.querySelectorAll("[data-open]").forEach(el=>{if(!betaLockedLesson(el.dataset.open)||el.dataset.bl)return;el.dataset.bl=1;
     if(el.closest(".lcard")){el.classList.add("ghost");el.innerHTML="🔒 "+L({en:"Notify me",fr:"Me prévenir"});}
@@ -597,7 +634,22 @@ function bindNav(){
 function disc(ar){return `<div class="disc"><span class="lbl">${L(T.discuss)}</span><p class="ar">${ar}</p></div>`;}
 
 let stopAnim=null;
-function render(){ render0(); betaDecorate(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); }
+function render(){ render0(); betaDecorate(); trackView(); maybeNudge(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); }
+function trackView(){try{if(S.view==="student")gcOnce("lesson/"+(S.lesson||"L3")+"/step-"+((S.step||0)+1),"Lesson step reached");else if(["grades","glossary","beyond","thinkers","shop","teacher","story","explore"].includes(S.view))gcOnce("view/"+S.view+(S.view==="story"?"/"+S.storyId:S.view==="explore"?"/"+S.explore:""),"Section opened");}catch(e){}}
+let nudgeTimer=null;
+function maybeNudge(){
+  if(!BETA.on||S.joined||S.nudged||nudgeTimer||document.getElementById("nudge"))return;
+  const show=()=>{if(S.joined||S.nudged||S.view==="student"||S.view==="skill"||document.querySelector(".modal, .sov"))return;
+    S.nudged=true;save();window.removeEventListener("scroll",onScroll);gcEvent("pioneer/nudge-shown");
+    const d=document.createElement("div");d.id="nudge";d.className="nudge";d.setAttribute("role","dialog");d.setAttribute("aria-label",L({en:"Sabab pioneers",fr:"Pionniers de Sabab"}));
+    d.innerHTML=`<button class="nx" aria-label="${L({en:"Close",fr:"Fermer"})}">×</button><b>${L({en:"Get the next lesson first",fr:"Reçois la prochaine leçon en premier"})}</b><span>${L({en:"Become a Sabab pioneer. Free, one minute.",fr:"Deviens un pionnier de Sabab. Gratuit, une minute."})}</span><button class="btn" id="nGo">${L({en:"Become a pioneer",fr:"Devenir pionnier"})} →</button>`;
+    document.body.appendChild(d);d.querySelector(".nx").onclick=()=>{d.remove();gcEvent("pioneer/nudge-closed");};
+    d.querySelector("#nGo").onclick=()=>{d.remove();gcEvent("pioneer/cta-nudge");goWaitlist();};};
+  const onScroll=()=>{const h=document.documentElement;if(S.view==="home"&&h.scrollTop>(h.scrollHeight-h.clientHeight)*0.5)show();};
+  window.addEventListener("scroll",onScroll,{passive:true});
+  nudgeTimer=setTimeout(show,45000);
+}
+document.addEventListener("click",e=>{if(e.target.closest("#filmPlay,#filmBig"))gcOnce("film/brake/play","Film played");});
 function render0(){
   if(stopAnim){stopAnim();stopAnim=null;}
   renderShell();
@@ -1109,6 +1161,16 @@ function makeSteam(){
 }
 
 /* ================= STEP 6: REFLECT ================= */
+function nextFirstHTML(){
+  const cur=S.lesson||"L3";let next=null,found=false;UNIT.forEach(c=>c.lessons.forEach(l=>{if(found&&!next&&l.live)next=l;if(l.live===cur)found=true;}));
+  if(!next) return "";
+  gcOnce("lesson/"+cur+"/complete","Reached the end of "+cur);
+  return `<section class="card nextfirst"><span class="kicker">${L({en:"What's next",fr:"Et ensuite"})}</span><h2 style="margin:4px 0">${L({en:"Liked it? Lesson",fr:"Ça t'a plu ? La leçon"})} ${next.n} ${L({en:"is next.",fr:"arrive."})}</h2>
+    <p style="margin:0"><b>${L(next.t)}</b> <span class="ar" style="display:inline">${next.ar}</span></p>
+    <p class="muted" style="margin:0">${betaLockedLesson(next.live)?L({en:"It opens after the physics teachers' review. Become a Sabab pioneer (free) and get it first.",fr:"Elle ouvre après la relecture par les enseignants de physique. Deviens un pionnier de Sabab (gratuit) et reçois-la en premier."}):L({en:"It's open now.",fr:"Elle est ouverte."})}</p>
+    <div class="row">${betaLockedLesson(next.live)?`<button class="btn" data-nextfirst="1">${L({en:"Get the next lesson first",fr:"Recevoir la prochaine leçon en premier"})} →</button>`:`<button class="btn" data-nextopen="${next.live}">${L({en:"Open Lesson",fr:"Ouvrir la leçon"})} ${next.n} →</button>`}</div></section>`;
+}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-nextfirst]");if(a){gcEvent("pioneer/cta-lesson-end");goWaitlist();}const o=e.target.closest("[data-nextopen]");if(o)openLesson(o.dataset.nextopen,0);});
 function reflect(){
   if(S.stance2===null){S.stance2=S.stance;}
   const score=QUIZ.filter((q,i)=>S.quiz[i]===q.c).length;
@@ -1128,7 +1190,7 @@ function reflect(){
     <label class="f" for="rc">${L({en:"A question I still have",fr:"Une question que je me pose encore"})}<textarea id="rc" style="min-height:60px">${esc(S.refl.c)}</textarea></label>
     ${disc("ما الذي تغيّر في طريقة تفكيرك اليوم؟ وما السؤال الذي ما زال يشغلك؟")}
   </section>
-  ${ladderHTML()}${goFurtherHTML()}
+  ${ladderHTML()}${goFurtherHTML()}${nextFirstHTML()}
   <section class="card">
     <h2>${L({en:"Your position, before and after",fr:"Ta position, avant et après"})}</h2>
     <div class="stance">
@@ -1161,6 +1223,27 @@ function reflect(){
 }
 
 /* ================= HOME ================= */
+const ROLES=[["student","🎓",{en:"Student",fr:"Élève"}],["teacher","👩‍🏫",{en:"Teacher",fr:"Enseignant·e"}],["parent","👪",{en:"Parent",fr:"Parent"}],["school","🏫",{en:"School",fr:"École"}]];
+function roleHTML(tx){
+  if(!S.role) return `<section class="rolebar" aria-label="${tx("Who are you?","Qui es-tu ?")}"><b>${tx("Welcome! You are a…","Bienvenue ! Tu es…")}</b><div class="rolebtns">${ROLES.map(([k,ic,l])=>`<button class="rolebtn" data-role="${k}"><span aria-hidden="true">${ic}</span>${L(l)}</button>`).join("")}</div></section>`;
+  const R={student:{t:tx("Start with Lesson 3: The Brake. Stuck on a concept? Use Search.","Commence par la leçon 3 : le freinage. Bloqué sur une notion ? Utilise la recherche."),b:[["rStart",tx("Start Lesson 3","Commencer la leçon 3")],["rSearch",tx("Search a concept","Chercher une notion")]]},
+    teacher:{t:tx("Get the free Lesson 3 teacher guide and join the teacher pilot.","Reçois le guide gratuit de la leçon 3 et rejoins le pilote enseignants."),b:[["rGuide",tx("Get the teacher guide (PDF)","Recevoir le guide (PDF)")],["rPlan",tx("See the lesson plan","Voir le plan de leçon")]]},
+    parent:{t:tx("Read a free science story with your child, then try Lesson 3 together.","Lis un récit scientifique gratuit avec ton enfant, puis essayez la leçon 3 ensemble."),b:[["rStory",tx("Read a free story","Lire un récit gratuit")],["rStart",tx("Try Lesson 3","Essayer la leçon 3")]]},
+    school:{t:tx("See what Sabab offers schools, and invite your physics teachers to the pilot.","Découvrez l'offre Sabab pour les écoles et invitez vos enseignants de physique au pilote."),b:[["rSchool",tx("Bring Sabab to your school","Faire venir Sabab dans votre école")],["rGuide",tx("Teacher guide (PDF)","Guide enseignant (PDF)")]]}}[S.role];
+  if(!R) return "";
+  return `<section class="rolebar chosen"><span>${R.t}</span><div class="rolebtns">${R.b.map(([id,l],i)=>`<button class="btn ${i?"ghost":""}" id="${id}">${l} →</button>`).join("")}<button class="linkbtn" id="rChange">${tx("Not a","Pas")} ${L(ROLES.find(r=>r[0]===S.role)[2]).toLowerCase()}?</button></div></section>`;
+}
+function bindRole(){
+  document.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{S.role=b.dataset.role;save();gcEvent("role/"+S.role,"Visitor role: "+S.role);render();});
+  const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f;};
+  on("rStart",()=>{gcEvent("role-cta/start");openLesson("L3",0);});
+  on("rSearch",()=>openSearch());
+  on("rGuide",()=>guideModal());
+  on("rPlan",()=>{S.tLesson="L3";save();go("teacher");});
+  on("rStory",()=>{gcEvent("role-cta/story");openStory("eagle");});
+  on("rSchool",()=>{gcEvent("role-cta/school");S.shopF={type:"school",aud:"all"};go("shop");});
+  on("rChange",()=>{S.role=null;save();render();});
+}
 function renderHome(){
   const tx=(en,fr)=>S.lang==="fr"?fr:en;
   const sig=[
@@ -1178,12 +1261,13 @@ function renderHome(){
      src:[["MTV Lebanon","https://www.mtv.com.lb/news/1723376"],["Al-Akhbar","https://www.al-akhbar.com/Opinion/345708"]]}
   ];
   $("#main").innerHTML=`
+  ${roleHTML(tx)}
   <section class="hero hero2"><div class="hcopy">
     <span class="kick">${tx("For Lebanon and the Arab world","Pour le Liban et le monde arabe")}</span>
     <h1>${tx("Don't just memorise the law. Find its","Ne mémorise pas seulement la loi. Trouve sa")} <span class="why">${tx("reason.","raison.")}</span></h1>
     <span class="ar-tag">لا تحفظ القانون فقط. اكتشف سببه.</span>
     <p class="lede">${tx("Sabab (سبب) means \"the reason\". Every lesson starts with a real question, lets you find the law in your own data, and ends with a question physics alone cannot answer.","Sabab (سبب) veut dire « la raison ». Chaque leçon part d'une vraie question, te fait trouver la loi dans tes propres données, et se termine par une question à laquelle la physique seule ne peut pas répondre.")}</p>
-    <div class="row"><button class="btn" id="hTry">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button><button class="btn ghost" id="hSch">${tx("For schools","Pour les écoles")}</button></div>
+    <div class="row"><button class="btn" id="hTry">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button><button class="btn ghost" id="hPio">${tx("Become a pioneer","Deviens pionnier")}</button></div>
   </div>${photo(PHOTO_DISCUSS,"",tx("Four secondary students discussing a physics question around a table with a lever and a pulley","Quatre élèves du secondaire discutent d'une question de physique autour d'une table, avec un levier et une poulie"))}</section>
   <section class="sec">
     <span class="kicker">${tx("What's inside","Ce que vous trouverez")}</span>
@@ -1238,7 +1322,8 @@ function renderHome(){
   ${morinBandHTML(tx)}
   ${waitlistHTML(tx)}`;
   $("#hTry").onclick=()=>openLesson(BETA.on?"L3":"L1",0);
-  $("#hSch").onclick=()=>go("teacher");
+  $("#hPio").onclick=()=>{gcEvent("pioneer/cta-hero");goWaitlist();};
+  bindRole();
   $("#hLib2").onclick=()=>go("shop");
   $("#wStu").onclick=()=>openLesson(BETA.on?"L3":"L1",0);
   $("#hThink").onclick=()=>go("thinkers");
@@ -3700,7 +3785,7 @@ function genReflect(c){
     <label class="f" for="rc">${tx2("A question I still have","Une question que je me pose encore")}<textarea id="rc" style="min-height:60px">${esc(d.refl.c)}</textarea></label>
     ${disc("ما الذي تغيّر في طريقة تفكيرك اليوم؟ وما السؤال الذي ما زال يشغلك؟")}
   </section>
-  ${ladderHTML()}${goFurtherHTML()}
+  ${ladderHTML()}${goFurtherHTML()}${nextFirstHTML()}
   <section class="card">
     <h2>${tx2("Your position, before and after","Ta position, avant et après")}</h2>
     <div class="stance"><div class="ends"><span>${L(c.ends[0])}</span><span>${L(c.ends[1])}</span></div>
@@ -5027,7 +5112,7 @@ function renderGrades(){
     <span class="kick">${tx("Lessons by grade · CRDP programme","Leçons par niveau · programme du CRDP")}</span>
     <h1 style="max-width:24ch;font-size:clamp(1.8rem,4vw,2.6rem)">${tx("Choose your grade","Choisis ton niveau")}</h1>
     <div class="row" style="gap:10px"><button class="btn ghost" id="grSearch">${tx("Search a concept","Chercher une notion")}</button><button class="btn ghost" id="grGloss">${tx("Glossary","Glossaire")}</button></div>
-    <p class="lede">${tx("Sabab follows the Lebanese national programme. Grade 11 mechanics is open now. The other grades are being prepared, and the waitlist decides which one opens next.","Sabab suit le programme national libanais. La mécanique de Première est ouverte. Les autres niveaux sont en préparation, et la liste d'attente décide lequel ouvrira ensuite.")}</p>
+    <p class="lede">${tx("Sabab follows the Lebanese national programme. Grade 11 mechanics is open now. The other grades are being prepared, and Sabab pioneers decide which one opens next.","Sabab suit le programme national libanais. La mécanique de Première est ouverte. Les autres niveaux sont en préparation, et les pionniers de Sabab décident lequel ouvrira ensuite.")}</p>
   </section>
   <div class="gwrap">
     <section class="ggroup"><h2>${tx("Intermediate · Grades 7–9","Complémentaire · EB7–EB9")}</h2><div class="ggrid">${GRADES.filter(x=>x.stage==="mid").map(card).join("")}</div></section>
@@ -5145,7 +5230,8 @@ function teacherL3HTML(tx){
 }
 function renderTeacher(){
   const tx=(en,fr)=>S.lang==="fr"?fr:en; const id=S.tLesson&&TG_ORDER.includes(S.tLesson)&&!betaLockedLesson(S.tLesson)?S.tLesson:"L3";
-  $("#main").innerHTML=teacherPicker(tx,id)+(id==="L3"?teacherL3HTML(tx):teacherGuideHTML(id,tx))+teacherLayerHTML(tx);
+  $("#main").innerHTML=`<section class="card guidecta"><div><span class="kicker">${tx("Free for teachers","Gratuit pour les enseignants")}</span><h2 style="margin:4px 0">${tx("Download the Lesson 3 teacher guide (PDF)","Télécharger le guide enseignant de la leçon 3 (PDF)")}</h2><p class="muted" style="margin:0">${tx("4 pages: session timeline, misconceptions, facilitation moves, rubric and a student worksheet to photocopy.","4 pages : déroulement, conceptions erronées, relances, grille et fiche élève à photocopier.")}</p></div><button class="btn" id="tGuide">${tx("Get the guide","Recevoir le guide")} →</button></section>`+teacherPicker(tx,id)+(id==="L3"?teacherL3HTML(tx):teacherGuideHTML(id,tx))+teacherLayerHTML(tx);
+  $("#tGuide").onclick=()=>guideModal();
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{if(betaLockedLesson(b.dataset.tg)){waitlistModal("lesson");return;}S.tLesson=b.dataset.tg;save();render();});
   document.querySelectorAll("[data-openl]").forEach(b=>b.onclick=()=>openLesson(b.dataset.openl,0));
   const vOn=document.getElementById("valOn"),vOff=document.getElementById("valOff");
@@ -5217,7 +5303,7 @@ function buildSearchIndex(){
   Object.keys(TG).forEach(id=>{const g=TG[id];add({kind:"guide",id:"tg"+id,title:`${L({en:"Teacher guide",fr:"Guide enseignant"})} · ${L(g.title)}`,alt:[g.title.en,g.title.fr].join(" "),body:(g.obj||[]).map(o=>o.en+" "+o.fr).join(" "),meta:`${L({en:"Lesson",fr:"Leçon"})} ${id.slice(1)}`,locked:betaLockedLesson(id),go:()=>{if(betaLockedLesson(id)){waitlistModal("lesson");return;}S.tLesson=id;save();go("teacher");}});});
   add({kind:"guide",id:"tgL3",title:`${L({en:"Teacher guide",fr:"Guide enseignant"})} · ${L({en:"Is a force real?",fr:"Une force, est-ce réel ?"})}`,alt:"teacher guide L3 lesson plan guide enseignant",body:"Newton second law inertia force",meta:`${L({en:"Lesson",fr:"Leçon"})} 3`,go:()=>{S.tLesson="L3";save();go("teacher");}});
   add({kind:"page",id:"glossary",title:L({en:"Glossary of physics terms",fr:"Glossaire des termes de physique"}),alt:"glossary glossaire definitions définitions قاموس مصطلحات",body:"",meta:`${GLOSSARY.length} ${L({en:"terms · English, French, Arabic",fr:"termes · anglais, français, arabe"})}`,go:()=>go("glossary")});
-  add({kind:"page",id:"waitlist",title:L({en:"Join the waitlist",fr:"Rejoindre la liste d'attente"}),alt:"waitlist liste d'attente inscription sign up",body:"",meta:L({en:"Get new lessons first",fr:"Recevoir les nouvelles leçons en premier"}),go:()=>goWaitlist()});
+  add({kind:"page",id:"waitlist",title:L({en:"Become a Sabab pioneer",fr:"Deviens un pionnier de Sabab"}),alt:"waitlist pioneer pionnier روّاد liste d'attente inscription sign up early access",body:"",meta:L({en:"Get new lessons first",fr:"Recevoir les nouvelles leçons en premier"}),go:()=>goWaitlist()});
   GLOSSARY.forEach((g,i)=>{g.keys=[g.en,g.fr,g.ar,...(g.al||[])].map(snorm);g.i=i;});
   SIDX=items;
 }

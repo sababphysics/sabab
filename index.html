@@ -383,6 +383,13 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 
+/* ===== friction, for-now, approach ===== */
+.friction{border-left:4px solid var(--amber)}
+.fq{margin:8px 0;padding:12px 16px;background:var(--amber-soft);border-radius:10px}
+.fq p{margin:0 0 6px}
+.fq cite{font-style:normal;font-size:.85rem;color:var(--muted)}
+.fornow{background:var(--surface-2);border-color:transparent}
+.approach ul{margin:0;padding-left:20px;display:grid;gap:6px}
 /* ===== pioneers, role chooser, nudge ===== */
 .rolebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:6px}
 .rolebar b{font-size:1rem}
@@ -756,6 +763,20 @@ const VOICES=[
   {who:{en:"Isaac Newton",fr:"Isaac Newton"},when:{en:"1687 · England",fr:"1687 · Angleterre"},q:{en:"Every body perseveres in its state of rest, or of uniform motion in a right line, unless it is compelled to change that state by forces impressed thereon.",fr:"Tout corps persévère dans l'état de repos ou de mouvement uniforme en ligne droite, à moins qu'une force n'agisse sur lui et ne le contraigne à changer d'état."},src:{en:"Principia, First Law",fr:"Principia, première loi"}},
   {who:{en:"Ernst Mach",fr:"Ernst Mach"},when:{en:"19th c. · Austria",fr:"XIXe s. · Autriche"},q:{en:"We never observe forces, only accelerations. 'Force' is a name we give to mass × acceleration.",fr:"On n'observe jamais des forces, seulement des accélérations. « Force » est le nom qu'on donne à masse × accélération."},src:{en:"Paraphrase of his view",fr:"Reformulation de sa position"}}
 ];
+const FRIC={
+ desc:{who:{en:"In the spirit of Ernst Mach",fr:"Dans l'esprit d'Ernst Mach"},arg:{en:"Nobody has ever seen a force. We see objects change their motion, and we measure how fast. \"Force\" may be the name we give to that change: a very useful word in an equation, not a thing in the world.",fr:"Personne n'a jamais vu une force. On voit des objets changer de mouvement, et on mesure à quelle vitesse. La « force » est peut-être le nom qu'on donne à ce changement : un mot très utile dans une équation, pas une chose du monde."}},
+ real:{who:{en:"In the spirit of Isaac Newton",fr:"Dans l'esprit d'Isaac Newton"},arg:{en:"When you push a door, the push comes from a real object, you, and a spring scale can measure it. If forces were only words, why would every object in the world, from a cart to the Moon, obey the same rule: net force = m·a?",fr:"Quand tu pousses une porte, la poussée vient d'un objet réel, toi, et un dynamomètre peut la mesurer. Si les forces n'étaient que des mots, pourquoi tous les objets du monde, du chariot à la Lune, obéiraient-ils à la même règle : force résultante = m·a ?"}}};
+function fricSide(){return S.stance<45?"desc":S.stance>55?"real":"both";}
+function frictionInner(){
+  const side=fricSide(),keys=side==="both"?["real","desc"]:[side];
+  return `<span class="kicker">${L({en:"Another way to see it",fr:"Une autre façon de voir"})}</span>
+    <h2 style="margin:4px 0">${side==="both"?L({en:"You stand in the middle. Here are the two strongest pulls.",fr:"Tu es au milieu. Voici les deux arguments les plus forts."}):L({en:"Someone who stands on the other side might say:",fr:"Quelqu'un qui se place de l'autre côté pourrait dire :"})}</h2>
+    ${keys.map(k=>`<blockquote class="fq"><p>${L(FRIC[k].arg)}</p><cite>${L(FRIC[k].who)} · ${L({en:"paraphrase",fr:"reformulation"})}</cite></blockquote>`).join("")}
+    <label class="f" for="fric">${L({en:"What would you answer? Take this view seriously before you reply.",fr:"Que répondrais-tu ? Prends ce point de vue au sérieux avant de répondre."})}
+      <textarea id="fric" placeholder="${L({en:"That's a fair point, but…",fr:"C'est un bon argument, mais…"})}">${esc(S.fric||"")}</textarea></label>
+    <p class="muted" style="font-size:.88rem;margin:0">${L({en:"Optional. In class, compare your answer with a classmate who stands on the other side.",fr:"Facultatif. En classe, compare ta réponse avec un·e camarade qui se place de l'autre côté."})}</p>
+    ${disc("اعرض موقفك على زميل يقف في الجهة المقابلة. ما أقوى حجّة لديه؟ وهل غيّرت شيئًا في تفكيرك؟")}`;
+}
 function question(){
   $("#main").innerHTML=`
   <section class="card">
@@ -779,9 +800,12 @@ function question(){
       <textarea id="reason" placeholder="${L({en:"I think… because…",fr:"Je pense que… parce que…"})}">${esc(S.reason)}</textarea></label>
     <p class="muted" style="font-size:.9rem">${L({en:"You will come back to this position at the end of the unit.",fr:"Tu reviendras à cette position à la fin de l'unité."})}</p>
   </section>
+  <section class="card friction" data-side="${fricSide()}" id="fricCard" ${S.reason.trim().length>=10?"":"hidden"}>${frictionInner()}</section>
   ${navHTML(S.reason.trim().length>=10)}`;
-  $("#stance").oninput=e=>{S.stance=+e.target.value;save();};
-  $("#reason").oninput=e=>{S.reason=e.target.value;save();$("#bNext").disabled=S.reason.trim().length<10;};
+  const bindFric=()=>{const t=$("#fric");if(t)t.oninput=e=>{S.fric=e.target.value;save();if(S.fric.trim().length>=10)gcOnce("lesson/L3/friction-answered","Answered the other view");};};
+  $("#stance").oninput=e=>{S.stance=+e.target.value;save();const fc=$("#fricCard");if(fc&&!fc.hidden){const side=fricSide();if(fc.dataset.side!==side){fc.dataset.side=side;fc.innerHTML=frictionInner();bindFric();}}};
+  $("#reason").oninput=e=>{S.reason=e.target.value;save();$("#bNext").disabled=S.reason.trim().length<10;const fc=$("#fricCard");if(fc&&fc.hidden&&S.reason.trim().length>=10){fc.hidden=false;fc.innerHTML=frictionInner();bindFric();gcOnce("lesson/L3/friction-shown","Other view shown");}};
+  bindFric();
   bindNav();
 }
 
@@ -908,7 +932,7 @@ function model(){
     <div class="opts" id="models" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${MODELS.map((m,i)=>`<button class="opt" data-k="${m.k}" aria-pressed="${S.model===m.k}"><span class="l">${"ABCD"[i]}</span><span class="formula">${m.f}</span></button>`).join("")}</div>
     ${chosen&&free.length?`<div class="tbl"><table><thead><tr><th>F (N)</th><th>m (kg)</th><th>${L({en:"measured a",fr:"a mesurée"})}</th><th>${L({en:"model predicts",fr:"le modèle prédit"})}</th><th></th></tr></thead><tbody>${rows.map(x=>`<tr><td class="mono">${nf(x.r.F,0)}</td><td class="mono">${nf(x.r.m,1)}</td><td class="mono">${nf(x.r.a)}</td><td class="mono">${nf(x.p)}</td><td class="${x.ok?"ok":"no"}">${x.ok?"✓":"✗"}</td></tr>`).join("")}</tbody></table></div>
     ${!varied?`<p class="note">${L({en:"To tell the models apart, you need runs with at least two different forces and two different masses. Go back to step 3 and add some.",fr:"Pour départager les modèles, il te faut des essais avec au moins deux forces et deux masses différentes. Retourne à l'étape 3 pour en ajouter."})}</p>`:""}
-    ${(!varied&&rows.every(x=>x.ok))?"":`<p class="note ${allOk?"good":"bad"}">`}${(!varied&&rows.every(x=>x.ok))?"":allOk?L({en:"Your model fits every run. You have rediscovered Newton's second law.",fr:"Ton modèle correspond à tous les essais. Tu as retrouvé la deuxième loi de Newton."}):L({en:"This rule does not fit all your data. Try another one.",fr:"Cette règle ne correspond pas à toutes tes données. Essaies-en une autre."})}${(!varied&&rows.every(x=>x.ok))?"":"</p>"}`:""}
+    ${(!varied&&rows.every(x=>x.ok))?"":`<p class="note ${allOk?"good":"bad"}">`}${(!varied&&rows.every(x=>x.ok))?"":allOk?L({en:"Your model fits every run. You have built, from your own data, the model physicists call Newton's second law.",fr:"Ton modèle correspond à tous les essais. Tu as construit, à partir de tes données, le modèle que les physiciens appellent la deuxième loi de Newton."}):L({en:"This rule does not fit all your data. Try another one.",fr:"Cette règle ne correspond pas à toutes tes données. Essaies-en une autre."})}${(!varied&&rows.every(x=>x.ok))?"":"</p>"}`:""}
   </section>
   ${S.modelOK?`
   <section class="card">
@@ -921,6 +945,10 @@ function model(){
     <p>${L({en:"Your prediction was:",fr:"Ta prédiction était :"})} <b>${S.pred!==null?L(PRED[S.pred]):"—"}</b></p>
     <p class="note ${S.pred===1?"good":""}">${S.pred===1?L({en:"Well predicted. ",fr:"Bien prédit. "}):L({en:"Now compare with the evidence. ",fr:"Compare maintenant avec les preuves. "})}${L({en:"Nothing pushed the passenger forward. The road's friction slowed the car; the passenger kept moving (first law) until the seatbelt applied a backward force. From inside the car it only <i>feels</i> like a push.",fr:"Rien n'a poussé le passager vers l'avant. Le frottement de la route a ralenti la voiture ; le passager a continué d'avancer (première loi) jusqu'à ce que la ceinture exerce une force vers l'arrière. De l'intérieur, cela <i>semble</i> seulement être une poussée."})}</p>
     ${disc("إذا لم نرَ القوّة أبدًا، بل رأينا أثرها فقط، فكيف نعرف أنّها موجودة؟ هل «القوّة» التي يشعر بها الراكب حقيقية؟")}
+  </section>
+  <section class="card fornow"><span class="kicker">${L({en:"The best answer, for now",fr:"La meilleure réponse, pour l'instant"})}</span>
+    <p style="margin:0">${L({en:"You built a model that explains your data: net force = m·a. It works for taxis, carts and planets. But physicists have replaced good models before: Newton's picture of motion replaced Aristotle's, and Einstein later showed where Newton's picture stops working. A law is our best answer so far, built from evidence and open to revision.",fr:"Tu as construit un modèle qui explique tes données : force résultante = m·a. Il marche pour les taxis, les chariots et les planètes. Mais les physiciens ont déjà remplacé de bons modèles : l'image du mouvement de Newton a remplacé celle d'Aristote, et Einstein a ensuite montré où celle de Newton cesse de marcher. Une loi est notre meilleure réponse à ce jour, construite à partir des preuves et révisable."})}</p>
+    <p class="muted" style="margin:0">${L({en:"Question to keep: what would it take to make you change a model you trust?",fr:"Question à garder : que faudrait-il pour te faire changer un modèle auquel tu fais confiance ?"})}</p>
   </section>
   <section class="card">
     <h2>${L({en:"Exam-style practice",fr:"Entraînement type examen"})}</h2>
@@ -1176,7 +1204,7 @@ function reflect(){
   const score=QUIZ.filter((q,i)=>S.quiz[i]===q.c).length;
   const B=[
     {n:{en:"Critical thinking",fr:"Pensée critique"},ar:"التفكير النقدي",on:S.reason.trim().length>=10&&S.refl.b.trim().length>=10,s:{en:"Position argued and revised",fr:"Position argumentée et révisée"}},
-    {n:{en:"Inquiry",fr:"Démarche d'investigation"},ar:"التقصّي",on:S.modelOK,s:{en:"Law found from own data",fr:"Loi trouvée à partir de tes données"}},
+    {n:{en:"Inquiry",fr:"Démarche d'investigation"},ar:"التقصّي",on:S.modelOK,s:{en:"Model built from own data",fr:"Modèle construit à partir de tes données"}},
     {n:{en:"Digital",fr:"Numérique"},ar:"الكفاية الرقمية",on:S.runs.length>=3,s:{en:"Virtual lab used",fr:"Labo virtuel utilisé"}},
     {n:{en:"Creativity & innovation",fr:"Créativité et innovation"},ar:"الإبداع والابتكار",on:S.make.steam||S.make.ard,s:{en:"Built and tested a real device",fr:"Dispositif réel construit et testé"}},
     {n:{en:"Communication",fr:"Communication"},ar:"التواصل",on:S.refl.a.trim().length>=10&&S.refl.b.trim().length>=10,s:{en:"Reflection written",fr:"Réflexion rédigée"}}
@@ -1266,7 +1294,7 @@ function renderHome(){
     <span class="kick">${tx("For Lebanon and the Arab world","Pour le Liban et le monde arabe")}</span>
     <h1>${tx("Don't just memorise the law. Find its","Ne mémorise pas seulement la loi. Trouve sa")} <span class="why">${tx("reason.","raison.")}</span></h1>
     <span class="ar-tag">لا تحفظ القانون فقط. اكتشف سببه.</span>
-    <p class="lede">${tx("Sabab (سبب) means \"the reason\". Every lesson starts with a real question, lets you find the law in your own data, and ends with a question physics alone cannot answer.","Sabab (سبب) veut dire « la raison ». Chaque leçon part d'une vraie question, te fait trouver la loi dans tes propres données, et se termine par une question à laquelle la physique seule ne peut pas répondre.")}</p>
+    <p class="lede">${tx("Sabab (سبب) means \"the reason\". Every lesson starts with a real question, lets you build the law from your own data, and ends with a question physics alone cannot answer.","Sabab (سبب) veut dire « la raison ». Chaque leçon part d'une vraie question, te fait construire la loi à partir de tes propres données, et se termine par une question à laquelle la physique seule ne peut pas répondre.")}</p>
     <div class="row"><button class="btn" id="hTry">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button><button class="btn ghost" id="hPio">${tx("Become a pioneer","Deviens pionnier")}</button></div>
   </div>${photo(PHOTO_DISCUSS,"",tx("Four secondary students discussing a physics question around a table with a lever and a pulley","Quatre élèves du secondaire discutent d'une question de physique autour d'une table, avec un levier et une poulie"))}</section>
   <section class="sec">
@@ -1289,10 +1317,11 @@ function renderHome(){
   <section class="sec" id="whySabab">
     <span class="kicker">${tx("Why Sabab","Pourquoi Sabab")}</span>
     <h2>${tx("One name, one method: look for the reason","Un nom, une méthode&nbsp;: chercher la raison")}</h2>
+    <p class="lede" style="margin:0;max-width:62ch">${tx("In every lesson you meet other ways of seeing the same thing, test them against evidence, and notice how your own thinking changes.","Dans chaque leçon, tu rencontres d'autres façons de voir la même chose, tu les confrontes aux preuves, et tu observes comment ta propre pensée change.")}</p>
     <div class="tgrid why3">
       <section class="card"><h3>${tx("For students","Pour les élèves")}</h3>
-        <p class="wlead">${tx("You find the law yourself.","Tu trouves la loi toi-même.")}</p><ul>
-        <li>${tx("Run the lab, collect your own data, watch the equation appear.","Lance le labo, relève tes données, vois l'équation apparaître.")}</li>
+        <p class="wlead">${tx("You build the law yourself.","Tu construis la loi toi-même.")}</p><ul>
+        <li>${tx("Run the lab, collect your own data, test which model explains it best.","Lance le labo, relève tes données, teste quel modèle l'explique le mieux.")}</li>
         <li>${tx("Build something real, then think past the exam.","Construis quelque chose de réel, puis pense au-delà de l'examen.")}</li></ul>
         <button class="btn" id="wStu">${tx("Try a free lesson","Essayer une leçon gratuite")} →</button></section>
       <section class="card"><h3>${tx("For teachers","Pour les enseignants")}</h3>
@@ -3771,7 +3800,7 @@ function genReflect(c){
   const score=c.quiz.filter((q,i)=>d.quiz[i]===q.c).length;
   const B=[
     {n:{en:"Critical thinking",fr:"Pensée critique"},ar:"التفكير النقدي",on:d.reason.trim().length>=10&&d.refl.b.trim().length>=10,s:{en:"Position argued and revised",fr:"Position argumentée et révisée"}},
-    {n:{en:"Inquiry",fr:"Investigation"},ar:"التقصّي",on:d.modelOK,s:{en:"Law found from own data",fr:"Loi trouvée à partir de tes données"}},
+    {n:{en:"Inquiry",fr:"Investigation"},ar:"التقصّي",on:d.modelOK,s:{en:"Model built from own data",fr:"Modèle construit à partir de tes données"}},
     {n:{en:"Digital",fr:"Numérique"},ar:"الكفاية الرقمية",on:d.recs.length>=3,s:{en:"Simulation used and data recorded",fr:"Simulation utilisée et données relevées"}},
     {n:{en:"Creativity & innovation",fr:"Créativité et innovation"},ar:"الإبداع والابتكار",on:d.make.done,s:{en:"Hands-on activity completed",fr:"Activité pratique réalisée"}},
     {n:{en:"Communication",fr:"Communication"},ar:"التواصل",on:d.refl.a.trim().length>=10&&d.refl.b.trim().length>=10,s:{en:"Reflection written",fr:"Réflexion rédigée"}}
@@ -5228,9 +5257,18 @@ function teacherL3HTML(tx){
     </tbody></table></div></section>
 `;
 }
+function approachHTML(tx){return `<section class="card approach"><span class="kicker">${tx("Our approach","Notre approche")}</span>
+  <h2 style="margin:4px 0">${tx("Physics knowledge as the result of inquiry","Le savoir physique comme résultat d'une enquête")}</h2>
+  <p>${tx("Sabab treats physics knowledge as models built from evidence: discussed, situated in history, and open to revision. It is not a set of truths to recite.","Sabab traite le savoir physique comme des modèles construits à partir de preuves : discutés, situés dans l'histoire et révisables. Ce n'est pas un ensemble de vérités à réciter.")}</p>
+  <ul>
+    <li><b>${tx("Other ways of seeing.","D'autres façons de voir.")}</b> ${tx("In each lesson, students meet competing explanations of the same phenomenon, from classmates and from the history of science (Aristotle, Ibn Sina, Newton, Mach…).","Dans chaque leçon, les élèves rencontrent des explications concurrentes d'un même phénomène, venant des camarades et de l'histoire des sciences (Aristote, Ibn Sina, Newton, Mach…).")}</li>
+    <li><b>${tx("Friction between interpretations.","La friction entre interprétations.")}</b> ${tx("After taking a position, students answer the strongest argument from the other side. The disagreement becomes a resource for examining their own assumptions.","Après avoir pris position, les élèves répondent à l'argument le plus fort du camp opposé. Le désaccord devient une ressource pour examiner leurs propres présupposés.")}</li>
+    <li><b>${tx("A changing relationship to knowledge.","Un rapport au savoir qui change.")}</b> ${tx("Students write their position before and after each lesson and what changed. The goal is not a new opinion, but a new way of knowing: understanding they can build, test and revise.","Les élèves écrivent leur position avant et après chaque leçon, et ce qui a changé. Le but n'est pas une nouvelle opinion, mais une nouvelle manière de connaître : un savoir qu'ils peuvent construire, tester et réviser.")}</li>
+  </ul>
+  <p class="muted" style="font-size:.9rem;margin:0">${tx("The approach draws on research on philosophical dialogue in the physics classroom: epistemic alterity, epistemic friction and the relationship to knowledge (rapport au savoir).","L'approche s'appuie sur la recherche sur le dialogue philosophique en classe de physique : altérité épistémique, friction épistémique et rapport au savoir.")}</p></section>`;}
 function renderTeacher(){
   const tx=(en,fr)=>S.lang==="fr"?fr:en; const id=S.tLesson&&TG_ORDER.includes(S.tLesson)&&!betaLockedLesson(S.tLesson)?S.tLesson:"L3";
-  $("#main").innerHTML=`<section class="card guidecta"><div><span class="kicker">${tx("Free for teachers","Gratuit pour les enseignants")}</span><h2 style="margin:4px 0">${tx("Download the Lesson 3 teacher guide (PDF)","Télécharger le guide enseignant de la leçon 3 (PDF)")}</h2><p class="muted" style="margin:0">${tx("4 pages: session timeline, misconceptions, facilitation moves, rubric and a student worksheet to photocopy.","4 pages : déroulement, conceptions erronées, relances, grille et fiche élève à photocopier.")}</p></div><button class="btn" id="tGuide">${tx("Get the guide","Recevoir le guide")} →</button></section>`+teacherPicker(tx,id)+(id==="L3"?teacherL3HTML(tx):teacherGuideHTML(id,tx))+teacherLayerHTML(tx);
+  $("#main").innerHTML=`<section class="card guidecta"><div><span class="kicker">${tx("Free for teachers","Gratuit pour les enseignants")}</span><h2 style="margin:4px 0">${tx("Download the Lesson 3 teacher guide (PDF)","Télécharger le guide enseignant de la leçon 3 (PDF)")}</h2><p class="muted" style="margin:0">${tx("4 pages: session timeline, misconceptions, facilitation moves, rubric and a student worksheet to photocopy.","4 pages : déroulement, conceptions erronées, relances, grille et fiche élève à photocopier.")}</p></div><button class="btn" id="tGuide">${tx("Get the guide","Recevoir le guide")} →</button></section>`+approachHTML(tx)+teacherPicker(tx,id)+(id==="L3"?teacherL3HTML(tx):teacherGuideHTML(id,tx))+teacherLayerHTML(tx);
   $("#tGuide").onclick=()=>guideModal();
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{if(betaLockedLesson(b.dataset.tg)){waitlistModal("lesson");return;}S.tLesson=b.dataset.tg;save();render();});
   document.querySelectorAll("[data-openl]").forEach(b=>b.onclick=()=>openLesson(b.dataset.openl,0));

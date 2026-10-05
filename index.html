@@ -607,7 +607,7 @@ function guideModal(){
   gcEvent("guide/opened","Teacher guide requested");
   const form=BETA.tallyGuide?tallyFrame(BETA.tallyGuide,560,L({en:"Teacher guide download",fr:"Téléchargement du guide"})):(BETA.tally?tallyFrame(BETA.tally,700,"Sabab"):"");
   const m=openModal(`<div class="guideform"><span class="kicker">${L({en:"For teachers · Free",fr:"Pour les enseignants · Gratuit"})}</span><h2>${L({en:"Lesson 3 teacher guide (PDF)",fr:"Guide enseignant de la leçon 3 (PDF)"})}</h2>
-    <p>${L({en:"Timeline for 3 sessions, objectives, misconceptions and how to challenge them, facilitation moves, the Arduino and egg challenges, a rubric and a student worksheet.",fr:"Déroulement en 3 séances, objectifs, conceptions erronées et comment les travailler, relances, défis Arduino et œuf, grille d'évaluation et fiche élève."})}</p>
+    <p>${L({en:"Timeline for 6 periods, prerequisites, objectives, misconceptions and how to challenge them, facilitation moves, the Arduino and egg challenges, a rubric and a student worksheet.",fr:"Déroulement en 6 séances, prérequis, objectifs, conceptions erronées et comment les travailler, relances, défis Arduino et œuf, grille d'évaluation et fiche élève."})}</p>
     <p class="muted" style="font-size:.9rem">${BETA.tallyGuide?L({en:"Enter your details: the download opens right after.",fr:"Indique tes coordonnées : le téléchargement s'ouvre juste après."}):L({en:"Choose \"Teacher\" in the form and we'll send you the guide by email.",fr:"Choisis « Enseignant » dans le formulaire et nous t'enverrons le guide par e-mail."})}</p>
     ${form}<p class="muted" style="font-size:.8rem">${L({en:"We only use your email for Sabab news and the teacher pilot.",fr:"Nous utilisons ton e-mail uniquement pour les nouvelles de Sabab et le pilote enseignants."})}</p></div>`);
   return m;
@@ -5403,7 +5403,7 @@ function teacherL3HTML(tx){
   <section class="card">
     <span class="kicker">${tx("Teacher guide","Guide de l'enseignant")}</span>
     <h1>${tx("Lesson","Leçon")} 3: ${L(T.title)} · ${tx("Lesson plan","Plan de leçon")}</h1>
-    <p>${tx("Grade 11 scientific track (adaptable to Grade 10 and to Arab-country equivalents). Three 50-minute sessions. Physics in English or French; discussion may be in Arabic.","Classe de 1re scientifique (adaptable au Grade 10 et aux équivalents des pays arabes). Trois séances de 50 minutes. Physique en français ou en anglais ; la discussion peut se faire en arabe.")}</p>
+    <p>${tx("Grade 11 scientific track (adaptable to Grade 10 and to Arab-country equivalents). Six 50-minute periods. Physics in English or French; discussion may be in Arabic.","Classe de 1re scientifique (adaptable au Grade 10 et aux équivalents des pays arabes). Six séances de 50 minutes. Physique en français ou en anglais ; la discussion peut se faire en arabe.")}</p>
     ${photo(PHOTO_TEACHER,"steam",tx("A teacher sits in a discussion circle with four students, listening while one explains","Une enseignante assise en cercle avec quatre élèves écoute l'un d'eux expliquer"))}
   </section>
   <div class="tgrid">
@@ -5420,15 +5420,29 @@ function teacherL3HTML(tx){
       <li><b>${tx("Digital","Numérique")}</b> <span class="ar" style="display:inline">الكفاية الرقمية</span>: ${tx("virtual lab, data table","labo virtuel, tableau de données")}</li>
       <li><b>${tx("Communication & collaboration","Communication et collaboration")}</b>: ${tx("community of inquiry, reflection","communauté de recherche, réflexion")}</li></ul></section>
   </div>
-  <section class="card"><h3>${tx("Session timeline","Déroulement")}</h3>
+  <section class="card"><h3>${tx("Before you start: prerequisites","Avant de commencer : prérequis")}</h3>
+    <p class="muted">${tx("From Chapter 7 and earlier grades. Check them in period 1; if many students are unsure, add a 15-minute review.","Du chapitre 7 et des classes précédentes. Les vérifier en séance 1 ; si beaucoup d'élèves hésitent, ajouter une révision de 15 minutes.")}</p>
+    <ul>
+      <li>${tx("Vectors: add two vectors, and project a vector on two perpendicular axes.","Vecteurs : additionner deux vecteurs et projeter un vecteur sur deux axes perpendiculaires.")}</li>
+      <li>${tx("Velocity and acceleration vectors; a = Δv / Δt.","Vecteurs vitesse et accélération ; a = Δv / Δt.")}</li>
+      <li>${tx("Uniformly varied rectilinear motion: v = a·t + v₀ and x = ½·a·t² + v₀·t + x₀.","Mouvement rectiligne uniformément varié : v = a·t + v₀ et x = ½·a·t² + v₀·t + x₀.")}</li>
+      <li>${tx("Forces from earlier grades: weight P = m·g, normal reaction, tension, friction, and how to draw them.","Forces vues avant : poids P = m·g, réaction normale, tension, frottement, et leur représentation.")}</li>
+    </ul></section>
+  <section class="card"><h3>${tx("Timeline: six 50-minute periods","Déroulement : six séances de 50 minutes")}</h3>
     <div class="timeline">
-      <div><b>S1 · 0'</b><span>${tx("Hook: play the taxi animation on the projector. Students predict individually, then vote.","Accroche : projeter l'animation du taxi. Les élèves prédisent seuls, puis votent.")}</span></div>
-      <div><b>S1 · 10'</b><span>${tx("Describe or explain? Students sort four sentences; name kinematics and dynamics only afterwards. Then the community of inquiry (circle): 'Is a force real?' Read the four thinkers. Roles: facilitator, questioner, summariser, skeptic.","Décrire ou expliquer ? Les élèves classent quatre phrases ; nommer cinématique et dynamique seulement ensuite. Puis la communauté de recherche (en cercle) : « Une force, est-ce réel ? » Lire les quatre penseurs. Rôles : animateur, questionneur, synthétiseur, sceptique.")}</span></div>
-      <div><b>S1 · 35'</b><span>${tx("Students write their position and one reason, then answer the strongest argument from the other side (step 2). Homework: 3 lab runs on a phone.","Les élèves écrivent leur position et une raison, puis répondent à l'argument le plus fort du camp opposé (étape 2). Devoir : 3 essais au labo sur téléphone.")}</span></div>
-      <div><b>S2 · 0'</b><span>${tx("Groups compare data and the F ÷ a column: for one cart it stays constant, and equals its mass. Test the four models (step 4).","Les groupes comparent leurs données et la colonne F ÷ a : pour un chariot, elle reste constante et égale à sa masse. Tester les quatre modèles (étape 4).")}</span></div>
-      <div><b>S2 · 25'</b><span>${tx("Explain the taxi with real forces only. The crate: represent the four forces and project on the direction of motion (F − f = m·a). Exam-style practice.","Expliquer le taxi uniquement avec des forces réelles. La caisse : représenter les quatre forces et projeter sur la direction du mouvement (F − f = m·a). Exercices type examen.")}</span></div>
-      <div><b>S3 · 0'</b><span>${tx("Make (step 5): half the class runs the Arduino lab, half builds the egg-passenger cart. Groups swap findings at the end.","Fabriquer (étape 5) : une moitié de la classe fait le labo Arduino, l'autre construit le chariot passager-œuf. Les groupes partagent leurs résultats à la fin.")}</span></div>
-      <div><b>S3 · 40'</b><span>${tx("Reflection and position shift (step 6). Students send their reflection to the class group.","Réflexion et évolution de la position (étape 6). Les élèves envoient leur réflexion au groupe de la classe.")}</span></div>
+      <div><b>P1 · 0'</b><span>${tx("Hook: play the taxi animation on the projector. Students predict individually, then vote.","Accroche : projeter l'animation du taxi. Les élèves prédisent seuls, puis votent.")}</span></div>
+      <div><b>P1 · 15'</b><span>${tx("Describe or explain? Students sort four sentences; name kinematics and dynamics only afterwards.","Décrire ou expliquer ? Les élèves classent quatre phrases ; nommer cinématique et dynamique seulement ensuite.")}</span></div>
+      <div><b>P1 · 35'</b><span>${tx("Prerequisite check (see the box above): project a force on two axes; read a velocity and an acceleration from a table.","Vérification des prérequis (voir l'encadré) : projeter une force sur deux axes ; lire une vitesse et une accélération dans un tableau.")}</span></div>
+      <div><b>P2 · 0'</b><span>${tx("Community of inquiry (circle): 'Is a force real?' Read the four thinkers. Roles: facilitator, questioner, summariser, skeptic.","Communauté de recherche (en cercle) : « Une force, est-ce réel ? » Lire les quatre penseurs. Rôles : animateur, questionneur, synthétiseur, sceptique.")}</span></div>
+      <div><b>P2 · 35'</b><span>${tx("Students write their position and one reason, then answer the strongest argument from the other side (step 2). Homework: 3 lab runs on a phone.","Les élèves écrivent leur position et une raison, puis répondent à l'argument le plus fort du camp opposé (étape 2). Devoir : 3 essais au labo sur téléphone.")}</span></div>
+      <div><b>P3 · 0'</b><span>${tx("Investigate (step 3): groups run the virtual lab, vary the force and the mass, and fill the table, including the F ÷ a column.","Enquête (étape 3) : les groupes utilisent le labo virtuel, font varier la force et la masse et remplissent le tableau, colonne F ÷ a comprise.")}</span></div>
+      <div><b>P3 · 35'</b><span>${tx("Groups compare their data: for one cart, F ÷ a stays constant and equals its mass.","Les groupes comparent leurs données : pour un chariot, F ÷ a reste constant et égal à sa masse.")}</span></div>
+      <div><b>P4 · 0'</b><span>${tx("Model (step 4): test the four candidate models against the data, then name the law ΣF = m·a.","Modèle (étape 4) : tester les quatre modèles candidats sur les données, puis nommer la loi ΣF = m·a.")}</span></div>
+      <div><b>P4 · 25'</b><span>${tx("Explain the taxi with real forces only. The crate: represent the four forces and project on the direction of motion (F − f = m·a).","Expliquer le taxi uniquement avec des forces réelles. La caisse : représenter les quatre forces et projeter sur la direction du mouvement (F − f = m·a).")}</span></div>
+      <div><b>P5 · 0'</b><span>${tx("Make (step 5): half the class runs the Arduino lab, half builds the egg-passenger cart.","Fabriquer (étape 5) : une moitié de la classe fait le labo Arduino, l'autre construit le chariot passager-œuf.")}</span></div>
+      <div><b>P5 · 40'</b><span>${tx("Groups swap findings: when the measurement and the theory disagree, why?","Les groupes partagent leurs résultats : quand mesure et théorie divergent, pourquoi ?")}</span></div>
+      <div><b>P6 · 0'</b><span>${tx("Exam-style practice: the quiz of the lesson, corrected together.","Exercices type examen : le quiz de la leçon, corrigé ensemble.")}</span></div>
+      <div><b>P6 · 30'</b><span>${tx("Reflection and position shift (step 6). Students send their reflection to the class group.","Réflexion et évolution de la position (étape 6). Les élèves envoient leur réflexion au groupe de la classe.")}</span></div>
     </div></section>
   <div class="tgrid">
     <section class="card"><h3>${tx("Facilitation moves","Relances pour animer")}</h3>

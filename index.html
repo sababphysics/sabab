@@ -744,7 +744,7 @@ function hook(){
   function size(){const d=devicePixelRatio||1;cv.width=cv.clientWidth*d;cv.height=240*d;ctx.setTransform(d,0,0,d,0,0);}
   size(); addEventListener("resize",size);
   $("#brake").onclick=()=>{braking=true;};
-  $("#drive").onclick=()=>{braking=false;v=16;};
+  $("#drive").onclick=()=>{braking=false;};
   function frame(now){
     const dt=Math.min(.05,(now-last)/1000);last=now;
     const W=cv.clientWidth,H=240;

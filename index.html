@@ -856,8 +856,9 @@ function question(){
 
 /* ================= STEP 3: INVESTIGATE ================= */
 const G=9.8,MU=0.2,TRACK=10;
+function freeStats(){const f=S.runs.filter(r=>!r.fr&&r.a>0);const varied=new Set(f.map(r=>r.m)).size>=2&&new Set(f.map(r=>r.F)).size>=2;return {n:f.length,varied,ok:f.length>=3&&varied};}
 function investigate(){
-  const nFree=S.runs.filter(r=>!r.fr&&r.a>0).length;
+  const fs0=freeStats(),nFree=fs0.n;
   $("#main").innerHTML=`
   <section class="card">
     <span class="kicker">3 · ${L(T.steps[2])}</span>
@@ -881,13 +882,16 @@ function investigate(){
   <section class="card">
     <div class="row" style="justify-content:space-between"><h2>${L({en:"Your data",fr:"Tes données"})}</h2><span class="chip">${L({en:"Frictionless runs",fr:"Essais sans frottement"})}: <b id="nFree">${nFree}</b> / 3</span></div>
     <div class="tbl"><table><thead><tr><th>#</th><th>F (N)</th><th>m (kg)</th><th>${L({en:"Friction",fr:"Frottement"})}</th><th>a (m/s²)</th><th>F ÷ a</th></tr></thead><tbody id="runs"></tbody></table></div>
+    <p class="note bad" id="varyHint" hidden>${L({en:"To test a model you need varied data: make frictionless runs with at least two different forces and two different masses.",fr:"Pour tester un modèle, il faut des données variées : fais des essais sans frottement avec au moins deux forces différentes et deux masses différentes."})}</p>
     <p class="muted" style="font-size:.9rem">${L({en:"Tip: keep m fixed and double F. Then keep F fixed and double m. What happens to a?",fr:"Astuce : garde m fixe et double F. Puis garde F fixe et double m. Que devient a ?"})}</p>
     <p class="note">${L({en:"Look at the last column for runs without friction. For the same cart, F ÷ a stays (almost) the same, whatever the force. Change the cart: it changes. Compare it with the mass you chose. What property of the cart does this ratio measure?",fr:"Regarde la dernière colonne pour les essais sans frottement. Pour un même chariot, F ÷ a reste (presque) la même, quelle que soit la force. Change de chariot : elle change. Compare-la avec la masse choisie. Quelle propriété du chariot ce rapport mesure-t-il ?"})}</p>
     ${disc("ماذا يحدث للتسارع عندما نضاعف القوّة؟ وعندما نضاعف الكتلة؟ هل نرى القوّة أم نرى أثرها فقط؟")}
-    <div class="ard"><b>${L({en:"No lab at school? Do it for real",fr:"Pas de labo à l'école ? Fais-le en vrai"})}</b>
-      <p>${L({en:"Arduino version: an HC-SR04 ultrasonic sensor measures the distance of a toy car pulled by a hanging mass. Or use a free phone-sensor app to record acceleration in a real car (as a passenger).",fr:"Version Arduino : un capteur ultrason HC-SR04 mesure la distance d'une petite voiture tirée par une masse suspendue. Ou utilise une application gratuite de capteurs sur téléphone pour enregistrer l'accélération dans une vraie voiture (en passager)."})} <b>${L({en:"The full Arduino lab is in step 5.",fr:"Le labo Arduino complet est à l'étape 5."})}</b></p></div>
+    <div class="ard"><b>${L({en:"No lab at school? Do it for real",fr:"Pas de labo à l'école ? Fais-le pour de vrai"})}</b>
+      <p>${L({en:"<b>Simple version:</b> a toy car on a smooth table, pulled by a string over the edge tied to a small bottle of water (the hanging mass). Mark 1 m on the table. Film the car with a phone and read the time t it takes to cover d = 1 m from rest: a = 2d ÷ t². Change the water in the bottle (the force), then add coins on the car (the mass). Careful: F is the weight of the bottle, and the mass that accelerates is the car plus the bottle.",fr:"<b>Version simple :</b> une petite voiture sur une table lisse, tirée par une ficelle qui passe au bord de la table et porte une petite bouteille d'eau (la masse suspendue). Marque 1 m sur la table. Filme la voiture avec un téléphone et lis la durée t pour parcourir d = 1 m depuis le repos : a = 2d ÷ t². Change l'eau dans la bouteille (la force), puis ajoute des pièces sur la voiture (la masse). Attention : F est le poids de la bouteille, et la masse qui accélère est celle de la voiture plus la bouteille."})}</p>
+      <p>${L({en:"<b>Arduino version:</b> an HC-SR04 ultrasonic sensor measures the distance of the car. The full Arduino lab is in step 5.",fr:"<b>Version Arduino :</b> un capteur à ultrasons HC-SR04 mesure la distance de la voiture. Le labo Arduino complet est à l'étape 5."})}</p>
+      <p class="muted" style="font-size:.9rem">${L({en:"Safety: put a cushion or a box under the hanging bottle, and stop the car before it falls off the table. If you use a phone app to measure acceleration in a real car, do it only as a passenger, with the phone held in place, never while driving.",fr:"Sécurité : place un coussin ou une boîte sous la bouteille suspendue, et arrête la voiture avant qu'elle tombe de la table. Si tu mesures l'accélération dans une vraie voiture avec une application, fais-le seulement comme passager, téléphone bien calé, jamais en conduisant."})}</p></div>
   </section>
-  ${navHTML(nFree>=3)}`;
+  ${navHTML(fs0.ok)}`;
   bindNav();
   const tr=$("#track"),tc=tr.getContext("2d"),gr=$("#graph"),gc=gr.getContext("2d");
   let x=0,v=0,t=0,a=0,aMeas=0,running=false,trace=[],last=0,raf;
@@ -897,7 +901,7 @@ function investigate(){
   function size(){const d=devicePixelRatio||1;[[tr,tc,150],[gr,gc,200]].forEach(([c,x,h])=>{c.width=c.clientWidth*d;c.height=h*d;x.setTransform(d,0,0,d,0,0);});draw();}
   function listRuns(){
     $("#runs").innerHTML=S.runs.length?S.runs.map((r,i)=>`<tr><td>${i+1}</td><td class="mono">${nf(r.F,0)}</td><td class="mono">${nf(r.m,1)}</td><td>${r.fr?"✓":"—"}</td><td class="mono">${nf(r.a,2)}</td><td class="mono">${!r.fr&&r.a>0?nf(r.F/r.a,2):"—"}</td></tr>`).join(""):`<tr><td colspan="6" class="muted" style="text-align:left">${L({en:"No runs yet. Press Run.",fr:"Aucun essai. Appuie sur Lancer."})}</td></tr>`;
-    const n=S.runs.filter(r=>!r.fr&&r.a>0).length;$("#nFree").textContent=n;const b=$("#bNext");if(b)b.disabled=n<3;
+    const fs=freeStats(),n=fs.n;$("#nFree").textContent=n;const b=$("#bNext");if(b)b.disabled=!fs.ok;const vh=$("#varyHint");if(vh)vh.hidden=!(n>=3&&!fs.varied);
   }
   listRuns();
   function draw(){

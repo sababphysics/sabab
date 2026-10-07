@@ -710,7 +710,7 @@ function render0(){
 const PRED=[
   {en:"The braking pushes the passenger forward.",fr:"Le freinage pousse le passager vers l'avant."},
   {en:"Nothing pushes them. They keep moving while the car slows down.",fr:"Rien ne le pousse. Il continue d'avancer pendant que la voiture ralentit."},
-  {en:"Gravity pulls them forward.",fr:"La gravité l'attire vers l'avant."},
+  {en:"The car's motion stays in the passenger and carries him forward.",fr:"Le mouvement de la voiture reste dans le passager et l'emporte vers l'avant."},
   {en:"The air inside the car pushes them.",fr:"L'air dans la voiture le pousse."}
 ];
 function hook(){
@@ -961,7 +961,16 @@ const QUIZ=[
    why:{en:"Forces: P (down), N (up), F (forward), f (backward). P and N cancel vertically. Along the motion: F − f = m·a, so a = (200 − 80) / 10 = 12 m/s².",fr:"Forces : P (vers le bas), N (vers le haut), F (vers l'avant), f (vers l'arrière). P et N se compensent verticalement. Selon le mouvement : F − f = m·a, donc a = (200 − 80) / 10 = 12 m/s²."}},
   {q:{en:"A hockey puck slides on nearly frictionless ice after being hit. Which statement is best supported by evidence?",fr:"Un palet glisse sur une glace presque sans frottement après avoir été frappé. Quelle affirmation est la mieux appuyée par les preuves ?"},
    o:[{en:"A force from the stick keeps pushing it.",fr:"Une force de la crosse continue de le pousser."},{en:"It keeps moving at constant velocity because the net force is almost zero.",fr:"Il garde une vitesse constante car la force résultante est presque nulle."},{en:"It slows down because its force runs out.",fr:"Il ralentit car sa force s'épuise."},{en:"It speeds up because it is moving.",fr:"Il accélère car il est en mouvement."}],c:1,
-   why:{en:"First law: with no net force, velocity stays constant. The stick's force acted only during contact.",fr:"Première loi : sans force résultante, la vitesse reste constante. La force de la crosse n'a agi que pendant le contact."}}
+   why:{en:"First law: with no net force, velocity stays constant. The stick's force acted only during contact.",fr:"Première loi : sans force résultante, la vitesse reste constante. La force de la crosse n'a agi que pendant le contact."}},
+  {q:{en:"A cart on a smooth track is pulled by a constant net force. What happens to its speed?",fr:"Un chariot sur un rail lisse est tiré par une force résultante constante. Que devient sa vitesse ?"},
+   o:[{en:"It stays constant, because the force is constant.",fr:"Elle reste constante, car la force est constante."},{en:"It keeps increasing, by the same amount every second.",fr:"Elle augmente sans arrêt, de la même quantité chaque seconde."},{en:"It increases, then stays constant once the force is used up.",fr:"Elle augmente, puis reste constante une fois la force épuisée."},{en:"It increases only while the force is getting bigger.",fr:"Elle n'augmente que si la force grandit."}],c:1,
+   why:{en:"A constant net force gives a constant acceleration (ΣF = m·a), so the speed grows by the same amount every second: v = a·t + v₀. A force changes the speed; it does not set it. On a smooth track, the speed never levels off.",fr:"Une force résultante constante donne une accélération constante (ΣF = m·a) : la vitesse augmente de la même quantité chaque seconde, v = a·t + v₀. Une force change la vitesse ; elle ne la fixe pas. Sur un rail lisse, la vitesse ne se stabilise jamais."}},
+  {q:{en:"The taxi has stopped. A 70 kg passenger sits still on the seat. Which forces act on him?",fr:"Le taxi est arrêté. Un passager de 70 kg est assis immobile sur le siège. Quelles forces s'exercent sur lui ?"},
+   o:[{en:"None, because he does not move.",fr:"Aucune, puisqu'il ne bouge pas."},{en:"Only his weight P.",fr:"Seulement son poids P."},{en:"His weight P and the push N of the seat, equal and opposite.",fr:"Son poids P et la poussée N du siège, égales et opposées."},{en:"His weight P and a force inside him that keeps him in place.",fr:"Son poids P et une force en lui qui le maintient en place."}],c:2,
+   why:{en:"At rest, a = 0, so ΣF = 0: the forces cancel, they do not disappear. The Earth pulls him down (P = m·g ≈ 686 N) and the seat pushes him up with N = 686 N. A seat can push: it is squeezed a little, like a spring.",fr:"Au repos, a = 0, donc ΣF = 0 : les forces se compensent, elles ne disparaissent pas. La Terre l'attire vers le bas (P = m·g ≈ 686 N) et le siège le pousse vers le haut avec N = 686 N. Un siège peut pousser : il est un peu comprimé, comme un ressort."}},
+  {q:{en:"On smooth tracks, cart A (1 kg) is pulled with 2 N and cart B (2 kg) with 4 N. Which one accelerates more?",fr:"Sur des rails lisses, le chariot A (1 kg) est tiré avec 2 N et le chariot B (2 kg) avec 4 N. Lequel accélère le plus ?"},
+   o:[{en:"A, because the lighter cart always accelerates more.",fr:"A, car le chariot léger accélère toujours plus."},{en:"B, because it is pulled with the bigger force.",fr:"B, car il est tiré avec la plus grande force."},{en:"Neither: both accelerate at 2 m/s².",fr:"Aucun : les deux accélèrent à 2 m/s²."},{en:"B, because heavier objects move faster.",fr:"B, car les objets lourds vont plus vite."}],c:2,
+   why:{en:"a = F ÷ m: for A, 2 ÷ 1 = 2 m/s²; for B, 4 ÷ 2 = 2 m/s². What matters is the ratio of force to mass, not the mass alone or the force alone.",fr:"a = F ÷ m : pour A, 2 ÷ 1 = 2 m/s² ; pour B, 4 ÷ 2 = 2 m/s². Ce qui compte, c'est le rapport de la force à la masse, pas la masse seule ni la force seule."}}
 ];
 function model(){
   const free=S.runs.filter(r=>!r.fr&&r.a>0), withFr=S.runs.filter(r=>r.fr&&r.a>0);
@@ -1296,7 +1305,7 @@ function reflect(){
     </div>
   </section>
   <section class="card">
-    <div class="row" style="justify-content:space-between"><h2>${L({en:"Competencies developed",fr:"Compétences développées"})}</h2><span class="chip">${L({en:"Quiz",fr:"Quiz"})}: ${score}/3</span></div>
+    <div class="row" style="justify-content:space-between"><h2>${L({en:"Competencies developed",fr:"Compétences développées"})}</h2><span class="chip">${L({en:"Quiz",fr:"Quiz"})}: ${score}/${QUIZ.length}</span></div>
     <div class="badges" id="badges">${B.map(b=>`<div class="badge ${b.on?"on":""}"><b>${L(b.n)}</b><span class="ar" style="font-size:.85rem;text-align:left;direction:rtl">${b.ar}</span><span class="s">${b.on?"✓ "+L(b.s):L({en:"Not yet",fr:"Pas encore"})}</span></div>`).join("")}</div>
     <div class="row"><button class="btn" id="shareV">${L({en:"Share on Student Voices",fr:"Partager sur Voix des élèves"})}</button><button class="btn ghost" id="copy">${L({en:"Copy my reflection for my teacher",fr:"Copier ma réflexion pour mon enseignant"})}</button><span class="muted" id="copied" style="font-size:.9rem"></span></div>
     <textarea id="copyBox" hidden readonly></textarea>
@@ -1308,7 +1317,7 @@ function reflect(){
   [["ra","a"],["rb","b"],["rc","c"]].forEach(([id,k])=>$("#"+id).oninput=e=>{S.refl[k]=e.target.value;save();if(S.refl.a.trim().length>=10&&S.refl.b.trim().length>=10)markDone(5);});
   $("#shareV").onclick=()=>{PREFILL={type:"answer",q:"q1",title:L({en:"Is a force real? My answer",fr:"Une force, est-ce réel ? Ma réponse"}),body:`${L({en:"I used to think",fr:"Avant, je pensais"})}: ${S.refl.a}\n\n${L({en:"Now I think",fr:"Maintenant, je pense"})}: ${S.refl.b}${S.refl.c.trim()?`\n\n${L({en:"My question",fr:"Ma question"})}: ${S.refl.c}`:""}`};go("voices");};
   $("#copy").onclick=()=>{
-    const txt=`Sabab · ${L(T.title)}\n${L({en:"I used to think",fr:"Avant, je pensais"})}: ${S.refl.a}\n${L({en:"Now I think",fr:"Maintenant, je pense"})}: ${S.refl.b}\n${L({en:"My question",fr:"Ma question"})}: ${S.refl.c}\nQuiz: ${score}/3`;
+    const txt=`Sabab · ${L(T.title)}\n${L({en:"I used to think",fr:"Avant, je pensais"})}: ${S.refl.a}\n${L({en:"Now I think",fr:"Maintenant, je pense"})}: ${S.refl.b}\n${L({en:"My question",fr:"Ma question"})}: ${S.refl.c}\nQuiz: ${score}/${QUIZ.length}`;
     const done=()=>{$("#copied").textContent=L({en:"Copied. Paste it in WhatsApp or your class group.",fr:"Copié. Colle-le dans WhatsApp ou le groupe de ta classe."});};
     const fallback=()=>{const b=$("#copyBox");b.hidden=false;b.value=txt;b.select();$("#copied").textContent=L({en:"Select the text below and copy it.",fr:"Sélectionne le texte ci-dessous et copie-le."});};
     try{navigator.clipboard.writeText(txt).then(done,fallback);}catch(e){fallback();}

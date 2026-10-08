@@ -542,7 +542,7 @@ const T={
   student:{en:"Lessons",fr:"Leçons"}, teacher:{en:"Teachers",fr:"Enseignants"}, home:{en:"Home",fr:"Accueil"}, shop:{en:"Library",fr:"Bibliothèque"}, voices:{en:"Voices",fr:"Voix"}, beyond:{en:"Beyond",fr:"Au-delà"},
   kick:{en:"Mechanics · Grade 11 · Lesson 3 of 10",fr:"Mécanique · 1re (Grade 11) · Leçon 3 sur 10"},
   title:{en:"Is a force real?",fr:"Une force, est-ce réel ?"},
-  meta:{en:"≈ 3 × 50 min · Aligned with CRDP physics (dynamics) and the 2026 competency framework",fr:"≈ 3 × 50 min · Aligné sur le programme CRDP (dynamique) et le cadre de compétences 2026"},
+  meta:{en:"≈ 6 × 50 min · Aligned with CRDP physics (dynamics) and the 2026 competency framework",fr:"≈ 6 × 50 min · Aligné sur le programme CRDP (dynamique) et le cadre de compétences 2026"},
   steps:[{en:"Hook",fr:"Accroche"},{en:"Question",fr:"Question"},{en:"Investigate",fr:"Enquête"},{en:"Model",fr:"Modèle"},{en:"Make",fr:"Fabriquer"},{en:"Reflect",fr:"Réflexion"}],
   stepsSub:[{en:"The taxi brakes",fr:"Le taxi freine"},{en:"Real or description?",fr:"Réel ou description ?"},{en:"Virtual lab",fr:"Labo virtuel"},{en:"Find the law",fr:"Trouver la loi"},{en:"Arduino & STEAM",fr:"Arduino et STEAM"},{en:"What changed?",fr:"Qu'est-ce qui a changé ?"}],
   next:{en:"Next step",fr:"Étape suivante"}, back:{en:"Back",fr:"Retour"},
@@ -672,7 +672,13 @@ function bindNav(){
 function disc(ar){return `<div class="disc"><span class="lbl">${L(T.discuss)}</span><p class="ar">${ar}</p></div>`;}
 
 let stopAnim=null;
-function render(){ render0(); betaDecorate(); trackView(); maybeNudge(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); }
+/* Browser back/forward: each change of page or lesson step becomes a history entry. */
+let navFromPop=false;
+function navSnap(){return {view:S.view,lesson:S.lesson,step:S.step,tLesson:S.tLesson,explore:S.explore};}
+function navKey(){const n=navSnap();return [n.view,n.lesson,n.step,n.tLesson||"",n.explore||""].join("|");}
+function navRecord(){if(navFromPop)return;try{const k=navKey(),h=history.state;if(!h||!h.sabab)history.replaceState({sabab:k,st:navSnap()},"");else if(h.sabab!==k)history.pushState({sabab:k,st:navSnap()},"");}catch(e){}}
+window.addEventListener("popstate",e=>{const st=e.state&&e.state.st;if(!st)return;if(st.lesson&&st.lesson!==S.lesson&&!betaLockedLesson(st.lesson)){S.prog=S.prog||{};S.prog[S.lesson||"L3"]={step:S.step,done:S.done};const p=S.prog[st.lesson]||{step:0,done:[]};S.done=p.done.slice();}Object.assign(S,st);save();navFromPop=true;try{render();}finally{navFromPop=false;}window.scrollTo(0,0);});
+function render(){ render0(); betaDecorate(); trackView(); maybeNudge(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); navRecord(); }
 function trackView(){try{if(S.view==="student")gcOnce("lesson/"+(S.lesson||"L3")+"/step-"+((S.step||0)+1),"Lesson step reached");else if(["grades","glossary","beyond","thinkers","shop","teacher","story","explore"].includes(S.view))gcOnce("view/"+S.view+(S.view==="story"?"/"+S.storyId:S.view==="explore"?"/"+S.explore:""),"Section opened");}catch(e){}}
 let nudgeTimer=null;
 function maybeNudge(){

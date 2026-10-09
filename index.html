@@ -2258,9 +2258,9 @@ const FILM_BRAKE=(function(){
     limb(c,sx,sy,ex,ey,26,C.navy);limb(c,ex,ey,wx,wy,22,C.navy);circ(c,wx+4,wy,13,C.skin);
     return [wx+6,wy-4];
   }
-  function cup(c,x,y,ps,scale){ // cup centred at x, bottom at y; ps = juice surface tilt (front/right side higher when >0)
+  function cup(c,x,y,ps,scale,lost){ // cup centred at x, bottom at y; ps = juice surface tilt (front/right side higher when >0); lost = level lost to the spill (0..1)
     c.save();c.translate(x,y);c.scale(scale,scale);
-    const w1=34,w2=26,h=52,lvl=34;
+    const w1=34,w2=26,h=52,lvl=34-5*(lost||0);
     c.save();c.beginPath();c.moveTo(-w1/2,-h);c.lineTo(w1/2,-h);c.lineTo(w2/2,0);c.lineTo(-w2/2,0);c.closePath();c.clip();
     const k=Math.tan(clamp(ps,-0.6,0.6))*w1/2;
     c.beginPath();c.moveTo(-30,-lvl+k);c.lineTo(30,-lvl-k);c.lineTo(30,4);c.lineTo(-30,4);c.closePath();c.fillStyle=C.juice;c.fill();
@@ -2331,7 +2331,7 @@ const FILM_BRAKE=(function(){
     rr(c,640,460,230,70,24);c.fillStyle=C.seat;c.fill();
     // Karim's front arm + cup
     const [cx,cy]=frontArm(c,hx,hy,s.ph);
-    cup(c,cx,cy+34,opts.noCup?0:s.ps,1);
+    cup(c,cx,cy+34,opts.noCup?0:s.ps,1,(s.r>=0&&drops[0])?clamp((s.r-drops[0].t0)/0.25,0,1):0);
     // spilled juice droplets and puddle
     if(s.r>=0) drops.forEach(dp=>{const u=s.r-dp.t0; if(u<0) return; const a=Math.min(s.a,7);
       let x=dp.vx*u+0.5*a*u*u, y=-dp.vy*u+0.5*g*u*u; const land=y>0.12; if(land){y=0.12;x=Math.min(x,0.35);}

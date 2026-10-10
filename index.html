@@ -70,7 +70,7 @@ p{margin:0}
 .brand .ar{font-size:1rem;color:var(--muted);line-height:1}
 .seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px}
 .seg button{all:unset;cursor:pointer;padding:5px 12px;border-radius:999px;font-size:.85rem;font-weight:600;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 
 .shell{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:22px 60px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
 @media (max-width:860px){.shell{grid-template-columns:1fr}}
@@ -314,6 +314,7 @@ td.mono{font-family:var(--mono)}
 .pic svg{display:block;width:100%;height:auto}
 .terms{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line)}.terms>*{padding:7px 8px;border-bottom:1px solid var(--line)}.terms>b{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.terms .tar{direction:rtl;text-align:right;font-family:var(--ar)}
 @media (max-width:600px){.terms{grid-template-columns:1fr 1fr}.terms>.tar{grid-column:1/-1;border-bottom:2px solid var(--line);padding-top:0}.terms>b.tar{display:none}.terms>span:not(.tar){border-bottom:0}}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--primary)!important;outline-offset:2px}
 .aitag{position:absolute;right:8px;bottom:8px;background:rgba(14,19,32,.72);color:#fff;font:600 11px/1.5 var(--sans);padding:1px 8px;border-radius:999px;pointer-events:none}
 .pic.sm .aitag{font-size:9px;right:5px;bottom:5px;padding:0 6px}
 .pic.photo img{display:block;width:100%;height:auto;aspect-ratio:1024/559;object-fit:cover}
@@ -364,7 +365,7 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 .badge{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:4px}
 .badge.on{border-color:var(--good);background:var(--good-soft)}
 .badge .s{font-size:.8rem;color:var(--muted)}
-.badge.on .s{color:var(--good);font-weight:600}
+.badge.on .s{color:color-mix(in srgb,var(--good) 72%,var(--ink));font-weight:600}
 
 .nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
@@ -383,7 +384,7 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radiu
 .betabar{max-width:1180px;margin:10px auto 0;padding:8px 14px;border-radius:10px;background:var(--amber-soft);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.9rem;margin-inline:max(16px,calc((100% - 1180px)/2))}
 .betabar:empty{display:none}
 #vVoices,.tile[data-go="voices"],#shareV{display:none!important}
-.is-locked{opacity:.62}
+.is-locked{opacity:.85}
 .lockchip{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);margin:4px 0 0}
 .wl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,3vw,32px)}
 .wl h2{margin:6px 0 10px}.wl-list{margin:10px 0 0;padding-left:20px;display:grid;gap:6px}
@@ -687,6 +688,8 @@ function navSnap(){return {view:S.view,lesson:S.lesson,step:S.step,tLesson:S.tLe
 function navKey(){const n=navSnap();return [n.view,n.lesson,n.step,n.tLesson||"",n.explore||""].join("|");}
 function navRecord(){if(navFromPop)return;try{const k=navKey(),h=history.state;if(!h||!h.sabab)history.replaceState({sabab:k,st:navSnap()},"");else if(h.sabab!==k)history.pushState({sabab:k,st:navSnap()},"");}catch(e){}}
 window.addEventListener("popstate",e=>{const st=e.state&&e.state.st;if(!st)return;if(st.lesson&&st.lesson!==S.lesson&&!betaLockedLesson(st.lesson)){S.prog=S.prog||{};S.prog[S.lesson||"L3"]={step:S.step,done:S.done};const p=S.prog[st.lesson]||{step:0,done:[]};S.done=p.done.slice();}Object.assign(S,st);save();navFromPop=true;try{render();}finally{navFromPop=false;}window.scrollTo(0,0);});
+/* a11y: scrollable tables and code blocks can be reached and scrolled with the keyboard */
+try{new MutationObserver(()=>{document.querySelectorAll('.tbl:not([tabindex]),pre.code:not([tabindex])').forEach(e=>{e.tabIndex=0;});}).observe(document.body,{childList:true,subtree:true});}catch(e){}
 function render(){ render0(); betaDecorate(); trackView(); maybeNudge(); const sl=document.getElementById("vSearchL");if(sl)sl.textContent=L({en:"Search",fr:"Rechercher"}); navRecord(); }
 function trackView(){try{if(S.view==="student")gcOnce("lesson/"+(S.lesson||"L3")+"/step-"+((S.step||0)+1),"Lesson step reached");else if(["grades","glossary","beyond","thinkers","shop","teacher","story","explore"].includes(S.view))gcOnce("view/"+S.view+(S.view==="story"?"/"+S.storyId:S.view==="explore"?"/"+S.explore:""),"Section opened");}catch(e){}}
 let nudgeTimer=null;
@@ -1132,8 +1135,8 @@ function make(){
     <div class="split2"><div style="display:grid;gap:10px;align-content:center"><h1>${L({en:"From screen to hands",fr:"De l'écran aux mains"})}</h1>
     <p>${L({en:"Choose one activity. Both can be done at school or at home with cheap or recycled materials.",fr:"Choisis une activité. Les deux se font à l'école ou à la maison avec du matériel bon marché ou recyclé."})}</p>
     <div class="seg" role="tablist" style="justify-self:start">
-      <button role="tab" id="tA" aria-pressed="${M.tab==="ard"}">${L({en:"Arduino lab",fr:"Labo Arduino"})}</button>
-      <button role="tab" id="tS" aria-pressed="${M.tab==="steam"}">${L({en:"STEAM challenge",fr:"Défi STEAM"})}</button>
+      <button role="tab" id="tA" aria-selected="${M.tab==="ard"}">${L({en:"Arduino lab",fr:"Labo Arduino"})}</button>
+      <button role="tab" id="tS" aria-selected="${M.tab==="steam"}">${L({en:"STEAM challenge",fr:"Défi STEAM"})}</button>
     </div></div>${M.tab==="ard"?photo(PHOTO_LAB,"",L({en:"Drawing of the lab: a laptop shows a graph of distance against time; an Arduino is wired to an ultrasonic sensor that faces a card on the back of a cart; a hand has just released the cart, which is pulled by a string running over a pulley to a hanging water bottle; a stopper sits before the pulley.",fr:"Dessin du labo : un ordinateur affiche un graphique de la distance en fonction du temps ; un Arduino est relié à un capteur ultrason qui vise une carte à l'arrière d'un chariot ; une main vient de lâcher le chariot, tiré par une ficelle passant sur une poulie jusqu'à une bouteille d'eau suspendue ; une butée est placée avant la poulie."})):photo(PHOTO_EGG,"steam",L({en:"Drawing of the egg challenge: a ramp rests on a stack of books, with a ruler measuring its height. At the bottom, a cart made from a plastic bottle rolls toward a wooden block. The egg sits on a sponge, held by a rubber-band belt, behind a folded-cardboard crumple zone at the front.",fr:"Dessin du défi de l'œuf : une rampe repose sur une pile de livres, avec une règle qui mesure sa hauteur. En bas, un chariot fait d'une bouteille en plastique roule vers un bloc de bois. L'œuf est posé sur une éponge, retenu par une ceinture en élastique, derrière une zone d'écrasement en carton plié à l'avant."}))}</div>
   </section>
   <div id="makeBody"></div>

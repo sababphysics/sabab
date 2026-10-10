@@ -310,8 +310,10 @@ td.mono{font-family:var(--mono)}
 .linkbtn{all:unset;cursor:pointer;font-size:.78rem;color:var(--muted);text-decoration:underline}
 .cbox{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .cbox textarea{min-height:56px}
-.pic{margin:0;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px -16px rgba(20,32,58,.35);border:1px solid var(--line);max-width:100%}
+.pic{position:relative;margin:0;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px -16px rgba(20,32,58,.35);border:1px solid var(--line);max-width:100%}
 .pic svg{display:block;width:100%;height:auto}
+.aitag{position:absolute;right:8px;bottom:8px;background:rgba(14,19,32,.72);color:#fff;font:600 11px/1.5 var(--sans);padding:1px 8px;border-radius:999px;pointer-events:none}
+.pic.sm .aitag{font-size:9px;right:5px;bottom:5px;padding:0 6px}
 .pic.photo img{display:block;width:100%;height:auto;aspect-ratio:1024/559;object-fit:cover}
 .pic.photo.steam img{aspect-ratio:1024/687}
 .pic.steam{max-width:640px}
@@ -1130,7 +1132,7 @@ function make(){
     <div class="seg" role="tablist" style="justify-self:start">
       <button role="tab" id="tA" aria-pressed="${M.tab==="ard"}">${L({en:"Arduino lab",fr:"Labo Arduino"})}</button>
       <button role="tab" id="tS" aria-pressed="${M.tab==="steam"}">${L({en:"STEAM challenge",fr:"Défi STEAM"})}</button>
-    </div></div>${M.tab==="ard"?photo(PHOTO_ARDUINO,"",L({en:"Hands wiring an Arduino board and a breadboard with a red LED",fr:"Des mains câblent une carte Arduino et une plaque d'essai avec une LED rouge"})):photo(PHOTO_STEAM,"steam",L({en:"Three students test a bottle cart with an egg passenger on a wooden ramp",fr:"Trois élèves testent un chariot en bouteille avec un passager-œuf sur une rampe en bois"}))}</div>
+    </div></div>${M.tab==="ard"?photo(PHOTO_LAB,"",L({en:"Drawing of the lab: a laptop shows a graph of distance against time; an Arduino is wired to an ultrasonic sensor that faces a card on the back of a cart; a hand has just released the cart, which is pulled by a string running over a pulley to a hanging water bottle; a stopper sits before the pulley.",fr:"Dessin du labo : un ordinateur affiche un graphique de la distance en fonction du temps ; un Arduino est relié à un capteur ultrason qui vise une carte à l'arrière d'un chariot ; une main vient de lâcher le chariot, tiré par une ficelle passant sur une poulie jusqu'à une bouteille d'eau suspendue ; une butée est placée avant la poulie."})):photo(PHOTO_EGG,"steam",L({en:"Drawing of the egg challenge: a ramp rests on a stack of books, with a ruler measuring its height. At the bottom, a cart made from a plastic bottle rolls toward a wooden block. The egg sits on a sponge, held by a rubber-band belt, behind a folded-cardboard crumple zone at the front.",fr:"Dessin du défi de l'œuf : une rampe repose sur une pile de livres, avec une règle qui mesure sa hauteur. En bas, un chariot fait d'une bouteille en plastique roule vers un bloc de bois. L'œuf est posé sur une éponge, retenu par une ceinture en élastique, derrière une zone d'écrasement en carton plié à l'avant."}))}</div>
   </section>
   <div id="makeBody"></div>
   ${navHTML(M.ard||M.steam)}`;
@@ -1142,7 +1144,7 @@ function make(){
 function makeArd(){
   const M=S.make;
   const box=(x,y,w,h,label,fill)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" style="fill:${fill};stroke:var(--line)"/><text x="${x+w/2}" y="${y+18}" text-anchor="middle" style="fill:var(--ink);font:600 12px var(--sans)">${label}</text>`;
-  const wires=[["VCC","5V","var(--bad)",0],["Trig","D9","var(--amber)",1],["Echo","D10","var(--primary)",2],["GND","GND","var(--muted)",3]];
+  const wires=[["VCC","5V","#E23B2E",0],["Trig","D9","#F2A233",1],["Echo","D10","#2D4BD8",2],["GND","GND","#14203A",3]];
   $("#makeBody").innerHTML=`
   <section class="card">
     <span class="kicker">${L({en:"Arduino lab · measure a real acceleration",fr:"Labo Arduino · mesurer une vraie accélération"})}</span>
@@ -1159,17 +1161,9 @@ function makeArd(){
         <p class="note">${L({en:"No hardware? Build the same circuit in Wokwi, a free online Arduino simulator.",fr:"Pas de matériel ? Monte le même circuit dans Wokwi, un simulateur Arduino gratuit en ligne."})}</p>
       </div>
       <div style="display:grid;gap:8px;align-content:start"><h3>${L({en:"Wiring",fr:"Câblage"})}</h3>
-        <div class="tbl"><svg class="fbd" viewBox="0 0 420 215" role="img" aria-label="${L({en:"HC-SR04 to Arduino Uno wiring: VCC to 5V, Trig to D9, Echo to D10, GND to GND",fr:"Câblage HC-SR04 vers Arduino Uno : VCC sur 5V, Trig sur D9, Echo sur D10, GND sur GND"})}">
-          <rect x="10" y="20" width="124" height="160" rx="10" fill="var(--primary-soft)" stroke="var(--ink)" stroke-width="2"/>
-          <circle cx="46" cy="66" r="24" fill="var(--surface-2)" stroke="var(--muted)" stroke-width="3"/><circle cx="46" cy="66" r="9" fill="var(--muted)"/>
-          <circle cx="46" cy="134" r="24" fill="var(--surface-2)" stroke="var(--muted)" stroke-width="3"/><circle cx="46" cy="134" r="9" fill="var(--muted)"/>
-          <rect x="286" y="20" width="124" height="160" rx="10" fill="var(--good-soft)" stroke="var(--ink)" stroke-width="2"/>
-          <rect x="372" y="28" width="30" height="26" rx="3" fill="var(--muted)"/><text x="387" y="68" text-anchor="middle" fill="var(--muted)" font-size="10">USB</text>
-          <rect x="336" y="116" width="54" height="22" rx="3" fill="var(--ink)"/>
-          ${wires.map(([a,b,c,i])=>{const y=56+i*30;return `<rect x="128" y="${y-4}" width="10" height="8" fill="var(--ink)"/><rect x="282" y="${y-4}" width="10" height="8" fill="var(--ink)"/><line x1="138" y1="${y}" x2="282" y2="${y}" style="stroke:${c};stroke-width:4;stroke-linecap:round"/><text x="122" y="${y+4}" text-anchor="end" style="fill:var(--ink);font:600 12px var(--mono)">${a}</text><text x="298" y="${y+4}" style="fill:var(--ink);font:600 12px var(--mono)">${b}</text>`;}).join("")}
-          <text x="72" y="204" text-anchor="middle" style="fill:var(--ink);font:700 13px var(--sans)">HC-SR04</text>
-          <text x="348" y="204" text-anchor="middle" style="fill:var(--ink);font:700 13px var(--sans)">Arduino Uno</text>
-        </svg></div>
+        <figure class="pic" style="max-width:420px;background:#fff"><img src="assets/wiring-wokwi.png" width="760" height="770" style="display:block;width:100%;height:auto" loading="lazy" alt="${L({en:"Wiring of the HC-SR04 sensor to an Arduino Uno: VCC to 5V (red), Trig to pin 9 (orange), Echo to pin 10 (blue), GND to GND (black).",fr:"Câblage du capteur HC-SR04 sur un Arduino Uno : VCC sur 5V (rouge), Trig sur la broche 9 (orange), Echo sur la broche 10 (bleu), GND sur GND (noir)."})}"></figure>
+        <ul style="margin:0;padding-left:20px;font:600 .9rem var(--mono);display:grid;gap:2px">${wires.map(([a,b,c])=>`<li><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);background:${c};vertical-align:-1px;margin-right:6px"></span>${a} → ${b}</li>`).join("")}</ul>
+        <p class="muted" style="font-size:.8rem;margin:0">${L({en:"Parts drawn with Wokwi Elements (MIT licence). You can build the same circuit in the free Wokwi simulator.",fr:"Composants dessinés avec Wokwi Elements (licence MIT). Tu peux monter le même circuit dans le simulateur gratuit Wokwi."})}</p>
         <p class="muted" style="font-size:.9rem">${L({en:"Put the sensor behind the cart's starting point, facing the cart. As the cart moves away, the distance grows.",fr:"Place le capteur derrière le point de départ du chariot, face à lui. Quand le chariot s'éloigne, la distance augmente."})}</p>
       </div>
     </div>
@@ -1448,7 +1442,7 @@ function renderHome(){
     <h2>${tx("Everything in one place","Tout au même endroit")}</h2>
     <div class="inside">
       <button class="tile" data-go="grades">${photo(PHOTO_THINK,"sm","")}<b>${tx("Inquiry lessons","Leçons d'investigation")}</b><small class="muted">${tx("Hook, question, investigate, model, make, reflect. Aligned with CRDP chapters.","Accroche, question, enquête, modèle, fabrication, réflexion. Alignées sur le CRDP.")}</small><span class="go">${tx("Try Newton's laws","Essayer les lois de Newton")} →</span></button>
-      <button class="tile" data-go="lab">${photo(PHOTO_ARDUINO,"sm","")}<b>${tx("Arduino & STEAM labs","Labos Arduino et STEAM")}</b><small class="muted">${tx("Measure real motion with a $10 sensor, or save an egg passenger with recycled materials.","Mesurer un vrai mouvement avec un capteur à 10 $, ou sauver un passager-œuf avec des matériaux recyclés.")}</small><span class="go">${tx("Open the lab","Ouvrir le labo")} →</span></button>
+      <button class="tile" data-go="lab">${photo(PHOTO_LAB,"sm","")}<b>${tx("Arduino & STEAM labs","Labos Arduino et STEAM")}</b><small class="muted">${tx("Measure real motion with a $10 sensor, or save an egg passenger with recycled materials.","Mesurer un vrai mouvement avec un capteur à 10 $, ou sauver un passager-œuf avec des matériaux recyclés.")}</small><span class="go">${tx("Open the lab","Ouvrir le labo")} →</span></button>
       <button class="tile" data-go="thinkers"><span class="pic sm thinkpic" aria-hidden="true"><svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice"><rect width="320" height="180" fill="#F6E7B8"/><rect x="0" y="138" width="320" height="42" fill="#E9D08C"/><rect x="36" y="92" width="8" height="48" fill="#7A5A2E"/><circle cx="40" cy="78" r="26" fill="#3F7D4E"/><circle cx="26" cy="92" r="16" fill="#4E9160"/><circle cx="54" cy="90" r="17" fill="#4E9160"/><rect x="150" y="52" width="140" height="92" rx="4" fill="#1F2A44"/><circle cx="150" cy="96" r="3.5" fill="#FFE7A8"/><polygon points="40,62 150,96 40,138" fill="#FFE7A8" opacity=".35"/><polygon points="150,96 286,64 286,128" fill="#FFE7A8" opacity=".18"/><rect x="265" y="66" width="6" height="24" fill="#C9A66B"/><circle cx="268" cy="104" r="14" fill="#8FC79E"/><circle cx="258" cy="95" r="9" fill="#A7D6B2"/><circle cx="278" cy="95" r="9" fill="#A7D6B2"/><text x="200" y="40" text-anchor="middle" font-family="Noto Kufi Arabic, sans-serif" font-size="15" font-weight="700" fill="#1F2A44">ابن الهيثم</text></svg></span><b>${tx("Thinkers","Penseurs")}</b><small class="muted">${tx("Ibn al-Haytham, Ibn Sīnā, Galileo, Noether, Morin and others: one idea each, and where to meet it in the lessons.","Ibn al-Haytham, Ibn Sīnā, Galilée, Noether, Morin et d'autres : une idée chacun, et où la retrouver dans les leçons.")}</small><span class="go">${tx("Meet them","Les découvrir")} →</span></button>
       <button class="tile" data-go="beyond"><span class="pic sm" aria-hidden="true" style="display:block;aspect-ratio:16/9;background:radial-gradient(circle at 35% 55%,#FFE7A8 0 7%,rgba(255,231,168,.25) 8% 14%,transparent 15%),radial-gradient(circle at 72% 40%,#7FB2E5 0 3%,transparent 4%),radial-gradient(circle at 20% 20%,#fff 0 .4%,transparent .6%),radial-gradient(circle at 85% 80%,#fff 0 .4%,transparent .6%),#0B1226"></span><b>${tx("Beyond the programme","Au-delà du programme")}</b><small class="muted">${tx("Modern physics and astronomy for the curious: exoplanets, relativity, the quantum world and the sky above Lebanon.","Physique moderne et astronomie pour les curieux : exoplanètes, relativité, monde quantique et ciel du Liban.")}</small><span class="go">${tx("Explore","Explorer")} →</span></button>
       <button class="tile" data-go="shop"><span class="pic sm minicovers" aria-hidden="true">${PRODUCTS.filter(x=>x.type==="story").map(x=>`<i style="background:${x.bg}"><em>${esc(L(x.t))}</em></i>`).join("")}</span><b>${tx("Library","Bibliothèque")}</b><small class="muted">${tx("Philosophical science stories, teacher guides, lab books and question cards.","Récits scientifiques philosophiques, guides, cahiers de labo et cartes-questions.")}</small><span class="go">${tx("Browse books","Voir les livres")} →</span></button>
@@ -1515,7 +1509,10 @@ const PHOTO_STEAM="assets/steam.jpg";
 const PHOTO_VOICES="assets/voices.jpg";
 const PHOTO_THINK="assets/think.jpg";
 const PHOTO_TEACHER="assets/teacher.jpg";
-const photo=(src,cls,alt)=>`<figure class="pic photo ${cls||""}"><img src="${src}" alt="${alt||""}" loading="lazy"></figure>`;
+const PHOTO_LAB="assets/lab-illustration.jpg";
+const PHOTO_EGG="assets/egg-illustration.jpg";
+const PHOTO_AI=new Set([PHOTO_DISCUSS,PHOTO_ARDUINO,PHOTO_STEAM,PHOTO_VOICES,PHOTO_THINK,PHOTO_TEACHER]);
+const photo=(src,cls,alt)=>`<figure class="pic photo ${cls||""}"><img src="${src}" alt="${alt||""}" loading="lazy">${PHOTO_AI.has(src)?`<figcaption class="aitag">${L({en:"AI-generated illustration",fr:"Illustration générée par IA"})}</figcaption>`:""}</figure>`;
 const ICON={
   swing:'<svg viewBox="0 0 100 100"><path d="M10 8h80" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M32 8l-8 64M68 8l-8 64" stroke="#fff" stroke-width="4"/><rect x="18" y="70" width="48" height="9" rx="4" fill="#fff"/></svg>',
   play:'<svg viewBox="0 0 100 100"><rect x="8" y="22" width="84" height="56" rx="8" stroke="#fff" stroke-width="6" fill="none"/><path d="M42 36v28l24-14z" fill="#fff"/></svg>',

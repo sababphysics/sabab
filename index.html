@@ -653,7 +653,7 @@ function betaDecorate(){
     else{el.classList.add("is-locked");el.insertAdjacentHTML("beforeend",`<span class="lockchip">${chip}</span>`);}});
   document.querySelectorAll("[data-tg]").forEach(el=>{if(betaLockedLesson(el.dataset.tg))el.classList.add("is-locked");});
   document.querySelectorAll("[data-explore]").forEach(el=>{if(betaLockedExplore(el.dataset.explore)&&!el.classList.contains("is-locked")){el.classList.add("is-locked");el.insertAdjacentHTML("afterend",`<span class="lockchip">${L({en:"Coming soon",fr:"Bientôt"})}</span>`);}});
-  const d=document.getElementById("demoNote"); if(d) d.textContent=L({en:"Pilot version. Your answers are saved only on this device. Visits are counted anonymously, without cookies.",fr:"Version pilote. Tes réponses sont enregistrées uniquement sur cet appareil. Les visites sont comptées anonymement, sans cookies."});
+  const d=document.getElementById("demoNote"); if(d){d.innerHTML=esc(L({en:"Pilot version. Your answers are saved only on this device. Visits are counted anonymously, without cookies.",fr:"Version pilote. Tes réponses sont enregistrées uniquement sur cet appareil. Les visites sont comptées anonymement, sans cookies."}))+` · <a href="#" id="credLink" style="color:inherit;text-decoration:underline">${L({en:"Credits and licences",fr:"Crédits et licences"})}</a>`;$("#credLink").onclick=e=>{e.preventDefault();openCredits();};}
 }
 function go(v){if(BETA.on&&v==="voices"){waitlistModal("voices");return;}S.view=v;save();render();window.scrollTo({top:0,behavior:"smooth"});}
 $("#vHome").onclick=()=>go("home");
@@ -1602,6 +1602,22 @@ function bindBooks(){
   document.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson,0));
   document.querySelectorAll("[data-read]").forEach(b=>b.onclick=()=>openStory(b.dataset.read));
   document.querySelectorAll("[data-watch]").forEach(b=>b.onclick=()=>{const m=openModal(`<span class="kicker">${L({en:"Sabab films · Lesson 3",fr:"Films Sabab · Leçon 3"})}</span><h2>${L({en:"The Brake",fr:"Le freinage"})}</h2>${filmPlayerHTML()}<div class="row"><button class="btn" id="fToL">${L({en:"Open Lesson 3",fr:"Ouvrir la leçon 3"})} →</button></div>`,"wide");mountFilm();document.getElementById("fToL").onclick=()=>{m.close();openLesson("L3",0);};});
+}
+function openCredits(){
+  const T=(en,fr)=>L({en,fr});
+  const rows=[
+    [T("The film “The Brake”: animation, sound and music","Le film « Le freinage » : animation, son et musique"),T("Made for Sabab (drawn and composed in code)","Réalisé pour Sabab (dessiné et composé en code)"),T("© Sabab","© Sabab")],
+    [T("Drawings: lab, egg challenge, force diagrams, set-up, thinkers, home tiles, book covers, share image","Dessins : labo, défi de l'œuf, bilans de forces, montage, penseurs, vignettes d'accueil, couvertures, image de partage"),T("Made for Sabab","Réalisés pour Sabab"),T("© Sabab","© Sabab")],
+    [T("Photo-style images marked “AI-generated illustration”","Images marquées « Illustration générée par IA »"),T("Generated with Google Gemini (free plan); Google does not claim ownership of generated content","Générées avec Google Gemini (offre gratuite) ; Google ne revendique pas la propriété du contenu généré"),T("Used under Google's Terms of Service","Utilisées selon les conditions d'utilisation de Google")],
+    [T("Arduino Uno and HC-SR04 parts in the wiring picture","Composants Arduino Uno et HC-SR04 du schéma de câblage"),"Wokwi Elements (wokwi.com)",T("MIT licence","Licence MIT")],
+    [T("Fonts: Bricolage Grotesque, Source Sans 3, JetBrains Mono, Noto Naskh Arabic, Noto Kufi Arabic","Polices : Bricolage Grotesque, Source Sans 3, JetBrains Mono, Noto Naskh Arabic, Noto Kufi Arabic"),"Google Fonts",T("SIL Open Font Licence 1.1","Licence SIL Open Font 1.1")],
+    [T("PhET simulation “Forces and Motion: Basics” (linked, not copied)","Simulation PhET « Forces et mouvement : bases » (lien, non copiée)"),T("PhET Interactive Simulations, University of Colorado Boulder","PhET Interactive Simulations, Université du Colorado à Boulder"),"CC BY 4.0"],
+    [T("News articles in “Why now” (linked and summarised)","Articles de presse de « Pourquoi maintenant » (liens et résumés)"),"The National, Arab News, Al-Rai, MTV Lebanon, Al-Akhbar",T("© their publishers; short summaries with links","© leurs éditeurs ; courts résumés avec lien")],
+    [T("Visit counter","Compteur de visites"),"GoatCounter",T("No cookies, no personal data","Sans cookies ni données personnelles")]
+  ];
+  openModal(`<span class="kicker">Sabab</span><h2>${T("Credits and licences","Crédits et licences")}</h2>
+  <ul style="list-style:none;margin:0;padding:0;display:grid;gap:10px">${rows.map(r=>`<li style="border-bottom:1px solid var(--line);padding-bottom:8px"><b>${r[0]}</b><br><span style="font-size:.92rem">${r[1]}</span><br><span class="muted" style="font-size:.88rem">${r[2]}</span></li>`).join("")}</ul>
+  <p class="muted" style="font-size:.9rem">${T("Lesson texts, activities, rubrics and teacher guides are written for Sabab from the official objectives of the Lebanese programme (CRDP). Sabab is an independent pilot and is not endorsed by CRDP. To report a rights issue: zeinafakhri@hotmail.com","Les textes des leçons, activités, grilles et guides de l'enseignant sont écrits pour Sabab à partir des objectifs officiels du programme libanais (CRDP). Sabab est un projet pilote indépendant, non approuvé par le CRDP. Pour signaler un problème de droits : zeinafakhri@hotmail.com")}</p>`);
 }
 function openModal(html,cls){
   const ov=document.createElement("div");ov.className="overlay";ov.innerHTML=`<div class="modal ${cls||""}" role="dialog" aria-modal="true">${html}<div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mClose">${L({en:"Close",fr:"Fermer"})}</button></div></div>`;
